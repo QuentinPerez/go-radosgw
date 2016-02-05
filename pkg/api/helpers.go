@@ -104,3 +104,27 @@ func (api *API) DeleteUsage(conf *UsageConfig) error {
 	}
 	return nil
 }
+
+// GetUser gets user information. If no user is specified returns the list of all users along with suspension information
+//
+// !! caps: users=read !!
+//
+// @uid
+//
+func (api *API) GetUser(uid ...string) (*User, error) {
+	ret := &User{}
+	values := url.Values{}
+
+	values.Add("format", "json")
+	if len(uid) != 0 {
+		values.Add("uid", uid[0])
+	}
+	body, _, err := api.get("/admin/user", values)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
