@@ -38,3 +38,23 @@ type Usage struct {
 		User string `json:"user"`
 	} `json:"summary"`
 }
+
+// User represents the response of user requests
+type User struct {
+	Caps []struct {
+		Perm string `json:"perm"`
+		Type string `json:"type"`
+	} `json:"caps"`
+	DisplayName string `json:"display_name"`
+	Email       string `json:"email"`
+	Keys        []struct {
+		AccessKey string `json:"access_key"`
+		SecretKey string `json:"secret_key"`
+		User      string `json:"user"`
+	} `json:"keys"`
+	MaxBuckets int           `json:"max_buckets"`
+	Subusers   []interface{} `json:"subusers"`
+	Suspended  int           `json:"suspended"`
+	SwiftKeys  []interface{} `json:"swift_keys"`
+	UserID     string        `json:"user_id"`
+}
