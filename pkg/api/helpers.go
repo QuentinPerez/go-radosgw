@@ -2,19 +2,36 @@ package radosAPI
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/url"
 	"time"
+
+	"github.com/QuentinPerez/go-radosgw/pkg/structToUrl"
 )
+
+func init() {
+	structToUrl.Funcs["ifNotEmpty"] = ifNotEmpty
+}
 
 // UsageConfig usage request
 type UsageConfig struct {
-	UID         string     // The user for which the information is requested. If not specified will apply to all users
-	Start       *time.Time // Date and (optional) time that specifies the start time of the requested data
-	End         *time.Time // Date and (optional) time that specifies the end time of the requested data (non-inclusive)
-	ShowEntries bool       // Specifies whether data entries should be returned.
-	ShowSummary bool       // Specifies whether data summary should be returned
-	RemoveAll   bool       // Required when uid is not specified, in order to acknowledge multi user data removal.
+	UID         string     `url:"uid,ifNotEmpty"` // The user for which the information is requested. If not specified will apply to all users
+	Start       *time.Time `url:"start"`          // Date and (optional) time that specifies the start time of the requested data
+	End         *time.Time `url:"end"`            // Date and (optional) time that specifies the end time of the requested data (non-inclusive)
+	ShowEntries bool       `url:"show-entries"`   // Specifies whether data entries should be returned.
+	ShowSummary bool       `url:"show-summary"`   // Specifies whether data summary should be returned
+	RemoveAll   bool       `url:"remove-all"`     // Required when uid is not specified, in order to acknowledge multi user data removal.
+}
+
+func ifNotEmpty(obj interface{}) (string, bool, error) {
+	if val, ok := obj.(string); ok {
+		if val != "" {
+			return val, true, nil
+		}
+		return "", false, nil
+	}
+	return "", false, errors.New("this field should be a string")
 }
 
 // GetUsage requests bandwidth usage information.
@@ -29,13 +46,11 @@ type UsageConfig struct {
 //
 func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
 	ret := &Usage{}
-	values := url.Values{}
+
+	values := structToUrl.Translate(conf)
 
 	values.Add("format", "json")
 	if conf != nil {
-		if conf.UID != "" {
-			values.Add("uid", conf.UID)
-		}
 		if !conf.ShowEntries {
 			values.Add("show-entries", "False")
 		}
