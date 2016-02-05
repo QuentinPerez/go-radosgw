@@ -1,5 +1,9 @@
 package radosAPI
 
+type apiError struct {
+	Code string `json:"Code"`
+}
+
 // Usage represents the response of usage requests
 type Usage struct {
 	Entries []struct {
