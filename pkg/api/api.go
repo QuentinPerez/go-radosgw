@@ -16,6 +16,7 @@ type API struct {
 	secretKey string
 }
 
+// New returns client for Ceph RADOS Gateway
 func New(host, accessKey, secretKey string) *API {
 	return &API{host, accessKey, secretKey}
 }

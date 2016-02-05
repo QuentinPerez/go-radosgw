@@ -7,15 +7,26 @@ import (
 	"time"
 )
 
+// UsageConfig usage request
 type UsageConfig struct {
-	UID         string
-	Start       *time.Time
-	End         *time.Time
-	ShowEntries bool
-	ShowSummary bool
-	RemoveAll   bool
+	UID         string     // The user for which the information is requested. If not specified will apply to all users
+	Start       *time.Time // Date and (optional) time that specifies the start time of the requested data
+	End         *time.Time // Date and (optional) time that specifies the end time of the requested data (non-inclusive)
+	ShowEntries bool       // Specifies whether data entries should be returned.
+	ShowSummary bool       // Specifies whether data summary should be returned
+	RemoveAll   bool       // Required when uid is not specified, in order to acknowledge multi user data removal.
 }
 
+// GetUsage requests bandwidth usage information.
+//
+// !! caps: usage=read !!
+//
+// @UID
+// @Start
+// @End
+// @ShowEntries
+// @ShowSummary
+//
 func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
 	ret := &Usage{}
 	values := url.Values{}
@@ -54,6 +65,15 @@ func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
 	return ret, nil
 }
 
+// DeleteUsage removes usage information. With no dates specified, removes all usage information
+//
+// !! caps: usage=write !!
+//
+// @UID
+// @Start
+// @End
+// @RemoveAll
+//
 func (api *API) DeleteUsage(conf *UsageConfig) error {
 	values := url.Values{}
 
