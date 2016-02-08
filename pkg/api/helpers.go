@@ -29,7 +29,7 @@ type UsageConfig struct {
 // @ShowEntries
 // @ShowSummary
 //
-func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
+func (api *API) GetUsage(conf UsageConfig) (*Usage, error) {
 	var (
 		ret    = &Usage{}
 		values = url.Values{}
@@ -37,11 +37,9 @@ func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
 	)
 
 	values.Add("format", "json")
-	if conf != nil {
-		values, errs = encurl.Translate(conf)
-		if len(errs) > 0 {
-			return nil, errs[0]
-		}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
 	}
 	body, _, err := api.get("/admin/usage", values)
 	if err != nil {
@@ -62,18 +60,16 @@ func (api *API) GetUsage(conf *UsageConfig) (*Usage, error) {
 // @End
 // @RemoveAll
 //
-func (api *API) DeleteUsage(conf *UsageConfig) error {
+func (api *API) DeleteUsage(conf UsageConfig) error {
 	var (
 		values = url.Values{}
 		errs   []error
 	)
 
 	values.Add("format", "json")
-	if conf != nil {
-		values, errs = encurl.Translate(conf)
-		if len(errs) > 0 {
-			return errs[0]
-		}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
 	}
 	_, _, err := api.delete("/admin/usage", values)
 	if err != nil {
@@ -139,10 +135,7 @@ type UserConfig struct {
 // @MaxBuckets
 // @Suspended
 //
-func (api *API) CreateUser(conf *UserConfig) (*User, error) {
-	if conf == nil {
-		return nil, errors.New("UserConfig must be not nil")
-	}
+func (api *API) CreateUser(conf UserConfig) (*User, error) {
 	if conf.UID == "" {
 		return nil, errors.New("UID field is required")
 	}
@@ -157,11 +150,9 @@ func (api *API) CreateUser(conf *UserConfig) (*User, error) {
 	)
 
 	values.Add("format", "json")
-	if conf != nil {
-		values, errs = encurl.Translate(conf)
-		if len(errs) > 0 {
-			return nil, errs[0]
-		}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
 	}
 	body, _, err := api.put("/admin/user", values)
 	if err != nil {
@@ -180,10 +171,7 @@ func (api *API) CreateUser(conf *UserConfig) (*User, error) {
 // @UID
 // @PurgeData
 //
-func (api *API) RemoveUser(conf *UserConfig) error {
-	if conf == nil {
-		return errors.New("UserConfig must be not nil")
-	}
+func (api *API) RemoveUser(conf UserConfig) error {
 	if conf.UID == "" {
 		return errors.New("UID field is required")
 	}
@@ -193,11 +181,9 @@ func (api *API) RemoveUser(conf *UserConfig) error {
 	)
 
 	values.Add("format", "json")
-	if conf != nil {
-		values, errs = encurl.Translate(conf)
-		if len(errs) > 0 {
-			return errs[0]
-		}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
 	}
 	_, _, err := api.delete("/admin/user", values)
 	if err != nil {
