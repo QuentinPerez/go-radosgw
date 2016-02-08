@@ -55,32 +55,48 @@ func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err 
 	return
 }
 
-func (api *API) get(route string, args url.Values) (body []byte, statusCode int, err error) {
-	body, statusCode, err = api.makeRequest("GET", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+func (api *API) get(route string, args url.Values, sub ...string) (body []byte, statusCode int, err error) {
+	subreq := ""
+	if len(sub) > 0 {
+		subreq = sub[0] + "&"
+	}
+	body, statusCode, err = api.makeRequest("GET", fmt.Sprintf("%v%v?%v%s", api.host, route, subreq, args.Encode()))
 	if statusCode != 200 {
 		err = fmt.Errorf("[%v]: %v", statusCode, err)
 	}
 	return
 }
 
-func (api *API) delete(route string, args url.Values) (body []byte, statusCode int, err error) {
-	body, statusCode, err = api.makeRequest("DELETE", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+func (api *API) delete(route string, args url.Values, sub ...string) (body []byte, statusCode int, err error) {
+	subreq := ""
+	if len(sub) > 0 {
+		subreq = sub[0] + "&"
+	}
+	body, statusCode, err = api.makeRequest("DELETE", fmt.Sprintf("%v%v?%v%s", api.host, route, subreq, args.Encode()))
 	if statusCode != 200 {
 		err = fmt.Errorf("[%v]: %v", statusCode, err)
 	}
 	return
 }
 
-func (api *API) put(route string, args url.Values) (body []byte, statusCode int, err error) {
-	body, statusCode, err = api.makeRequest("PUT", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+func (api *API) put(route string, args url.Values, sub ...string) (body []byte, statusCode int, err error) {
+	subreq := ""
+	if len(sub) > 0 {
+		subreq = sub[0] + "&"
+	}
+	body, statusCode, err = api.makeRequest("PUT", fmt.Sprintf("%v%v?%v%s", api.host, route, subreq, args.Encode()))
 	if statusCode != 200 {
 		err = fmt.Errorf("[%v]: %v", statusCode, err)
 	}
 	return
 }
 
-func (api *API) post(route string, args url.Values) (body []byte, statusCode int, err error) {
-	body, statusCode, err = api.makeRequest("POST", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+func (api *API) post(route string, args url.Values, sub ...string) (body []byte, statusCode int, err error) {
+	subreq := ""
+	if len(sub) > 0 {
+		subreq = sub[0] + "&"
+	}
+	body, statusCode, err = api.makeRequest("POST", fmt.Sprintf("%v%v?%v%s", api.host, route, subreq, args.Encode()))
 	if statusCode != 200 {
 		err = fmt.Errorf("[%v]: %v", statusCode, err)
 	}

@@ -114,7 +114,7 @@ type UserConfig struct {
 	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
 	MaxBuckets  *int   `url:"max-buckets,itoaIfNotNil"`        // Specify the maximum number of buckets the user can own
 	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
-	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
+	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // When specified the buckets and objects belonging to the user will also be removed
 }
 
 // CreateUser creates a new user. By Default, a S3 key pair will be created automatically and returned in the response.
@@ -239,11 +239,13 @@ type SubUserConfig struct {
 	SubUser        string `url:"subuser,ifStringIsNotEmpty"`    // Specify the subuser ID to be created
 	KeyType        string `url:"key-type,ifStringIsNotEmpty"`   // Key type to be generated, options are: swift (default), s3
 	Access         string `url:"access,ifStringIsNotEmpty"`     // Set access permissions for sub-user, should be one of read, write, readwrite, full
+	Secret         string `url:"secret,ifStringIsNotEmpty"`     // Specify secret key
 	SecretKey      string `url:"secret-key,ifStringIsNotEmpty"` // Specify secret key
 	GenerateSecret bool   `url:"generate-secret,ifBoolIsTrue"`  // Generate the secret key
+	PurgeKeys      bool   `url:"purge-keys,ifBoolIsTrue"`       // Remove keys belonging to the subuser
 }
 
-// CreateSubUser Creates a new subuser (primarily useful for clients using the Swift API).
+// CreateSubUser creates a new subuser (primarily useful for clients using the Swift API).
 // Note that either gen-subuser or subuser is required for a valid request.
 // Note that in general for a subuser to be useful, it must be granted permissions by specifying access.
 // As with user creation if subuser is specified without secret, then a secret key will be automatically generated.
@@ -273,7 +275,47 @@ func (api *API) CreateSubUser(conf SubUserConfig) (*SubUsers, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.put("/admin/user", values)
+	body, _, err := api.put("/admin/user", values, "subuser")
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// UpdateSubUser modifies an existing subuser
+//
+// !! caps:	users=write !!
+//
+// @UID
+// @SubUser
+// @KeyType
+// @Access
+// @Secret
+// @GenerateSecret
+//
+func (api *API) UpdateSubUser(conf SubUserConfig) (*SubUsers, error) {
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+	if conf.SubUser == "" {
+		return nil, errors.New("SubUser field is required")
+	}
+
+	var (
+		ret    = &SubUsers{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.post("/admin/user", values, "subuser")
 	if err != nil {
 		return nil, err
 	}
