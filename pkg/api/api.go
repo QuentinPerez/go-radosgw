@@ -49,16 +49,24 @@ func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err 
 	if err != nil {
 		return
 	}
-	if err = json.Unmarshal(body, &apiErr); err == nil && apiErr.Code != "" {
+	if errMarshal := json.Unmarshal(body, &apiErr); errMarshal == nil && apiErr.Code != "" {
 		err = errors.New(apiErr.Code)
 	}
 	return
 }
 
 func (api *API) get(route string, args url.Values) (body []byte, statusCode int, err error) {
-	return api.makeRequest("GET", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	body, statusCode, err = api.makeRequest("GET", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	if statusCode != 200 {
+		err = fmt.Errorf("[%v]: %v", statusCode, err)
+	}
+	return
 }
 
 func (api *API) delete(route string, args url.Values) (body []byte, statusCode int, err error) {
-	return api.makeRequest("DELETE", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	body, statusCode, err = api.makeRequest("DELETE", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	if statusCode != 200 {
+		err = fmt.Errorf("[%v]: %v", statusCode, err)
+	}
+	return
 }
