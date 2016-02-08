@@ -2,6 +2,7 @@ package radosAPI
 
 import (
 	"encoding/json"
+	"errors"
 	"net/url"
 	"time"
 
@@ -96,6 +97,72 @@ func (api *API) GetUser(uid ...string) (*User, error) {
 		values.Add("uid", uid[0])
 	}
 	body, _, err := api.get("/admin/user", values)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// UserConfig user request
+type UserConfig struct {
+	UID         string `url:"uid,ifStringIsNotEmpty"`          // The user ID to be created
+	DisplayName string `url:"display-name,ifStringIsNotEmpty"` // The display name of the user to be created
+	Email       string `url:"email,ifStringIsNotEmpty"`        // The email address associated with the user
+	KeyType     string `url:"key-type,ifStringIsNotEmpty"`     // Key type to be generated, options are: swift, s3 (default)
+	AccessKey   string `url:"access-key,ifStringIsNotEmpty"`   // Specify access key
+	SecretKey   string `url:"secret-key,ifStringIsNotEmpty"`   // Specify secret key
+	UserCaps    string `url:"user-caps,ifStringIsNotEmpty"`    // User capabilities
+	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
+	MaxBuckets  int    `url:"max-buckets,itoa"`                // Specify the maximum number of buckets the user can own
+	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
+}
+
+// CreateUser creates a new user. By Default, a S3 key pair will be created automatically and returned in the response.
+// If only one of access-key or secret-key is provided, the omitted key will be automatically generated.
+// By default, a generated key is added to the keyring without replacing an existing key pair.
+// If access-key is specified and refers to an existing key owned by the user then it will be modified
+//
+// !! caps: users=write !!
+//
+// @UID
+// @DisplayName
+// @Email
+// @KeyType
+// @AccessKey
+// @SecretKey
+// @UserCaps
+// @GenerateKey
+// @MaxBuckets
+// @Suspended
+//
+func (api *API) CreateUser(conf *UserConfig) (*User, error) {
+	if conf == nil {
+		return nil, errors.New("UserConfig must be not nil")
+	}
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+	if conf.DisplayName == "" {
+		return nil, errors.New("DisplayName field is required")
+	}
+
+	var (
+		ret    = &User{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	values.Add("format", "json")
+	if conf != nil {
+		values, errs = encurl.Translate(conf)
+		if len(errs) > 0 {
+			return nil, errs[0]
+		}
+	}
+	body, _, err := api.put("/admin/user", values)
 	if err != nil {
 		return nil, err
 	}
