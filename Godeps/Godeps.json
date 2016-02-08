@@ -1,0 +1,23 @@
+{
+	"ImportPath": "github.com/QuentinPerez/go-radosgw",
+	"GoVersion": "go1.6",
+	"Deps": [
+		{
+			"ImportPath": "github.com/QuentinPerez/go-encodeUrl",
+			"Rev": "0d1cd11e64d6162a92d03a576089e981c30ea5cd"
+		},
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.9.0",
+			"Rev": "be52937128b38f1d99787bb476c789e2af1147f1"
+		},
+		{
+			"ImportPath": "github.com/smartystreets/go-aws-auth",
+			"Rev": "f78c76cb076aa59266151a59f643160ea818fec5"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "50c6bc5e4292a1d4e65c6e9be5f53be28bcbe28e"
+		}
+	]
+}
