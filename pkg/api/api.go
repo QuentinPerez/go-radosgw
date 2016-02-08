@@ -70,3 +70,11 @@ func (api *API) delete(route string, args url.Values) (body []byte, statusCode i
 	}
 	return
 }
+
+func (api *API) put(route string, args url.Values) (body []byte, statusCode int, err error) {
+	body, statusCode, err = api.makeRequest("PUT", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	if statusCode != 200 {
+		err = fmt.Errorf("[%v]: %v", statusCode, err)
+	}
+	return
+}
