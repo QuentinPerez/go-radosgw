@@ -324,3 +324,36 @@ func (api *API) UpdateSubUser(conf SubUserConfig) (*SubUsers, error) {
 	}
 	return ret, nil
 }
+
+// RemoveSubUser remove an existing subuser
+//
+// !! caps:	users=write !!
+//
+// @UID
+// @SubUser
+// @PurgeKeys
+//
+func (api *API) RemoveSubUser(conf SubUserConfig) error {
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	if conf.SubUser == "" {
+		return errors.New("SubUser field is required")
+	}
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.delete("/admin/user", values, "subuser")
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
