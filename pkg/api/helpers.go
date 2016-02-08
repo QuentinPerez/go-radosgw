@@ -36,11 +36,11 @@ func (api *API) GetUsage(conf UsageConfig) (*Usage, error) {
 		errs   []error
 	)
 
-	values.Add("format", "json")
 	values, errs = encurl.Translate(conf)
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
+	values.Add("format", "json")
 	body, _, err := api.get("/admin/usage", values)
 	if err != nil {
 		return nil, err
@@ -66,11 +66,11 @@ func (api *API) DeleteUsage(conf UsageConfig) error {
 		errs   []error
 	)
 
-	values.Add("format", "json")
 	values, errs = encurl.Translate(conf)
 	if len(errs) > 0 {
 		return errs[0]
 	}
+	values.Add("format", "json")
 	_, _, err := api.delete("/admin/usage", values)
 	if err != nil {
 		return err
@@ -149,11 +149,11 @@ func (api *API) CreateUser(conf UserConfig) (*User, error) {
 		errs   []error
 	)
 
-	values.Add("format", "json")
 	values, errs = encurl.Translate(conf)
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
+	values.Add("format", "json")
 	body, _, err := api.put("/admin/user", values)
 	if err != nil {
 		return nil, err
@@ -190,11 +190,11 @@ func (api *API) UpdateUser(conf UserConfig) (*User, error) {
 		errs   []error
 	)
 
-	values.Add("format", "json")
 	values, errs = encurl.Translate(conf)
 	if len(errs) > 0 {
 		return nil, errs[0]
 	}
+	values.Add("format", "json")
 	body, _, err := api.post("/admin/user", values)
 	if err != nil {
 		return nil, err
