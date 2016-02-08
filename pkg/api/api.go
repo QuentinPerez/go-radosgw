@@ -78,3 +78,11 @@ func (api *API) put(route string, args url.Values) (body []byte, statusCode int,
 	}
 	return
 }
+
+func (api *API) post(route string, args url.Values) (body []byte, statusCode int, err error) {
+	body, statusCode, err = api.makeRequest("POST", fmt.Sprintf("%v%v?%s", api.host, route, args.Encode()))
+	if statusCode != 200 {
+		err = fmt.Errorf("[%v]: %v", statusCode, err)
+	}
+	return
+}

@@ -112,7 +112,7 @@ type UserConfig struct {
 	SecretKey   string `url:"secret-key,ifStringIsNotEmpty"`   // Specify secret key
 	UserCaps    string `url:"user-caps,ifStringIsNotEmpty"`    // User capabilities
 	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
-	MaxBuckets  int    `url:"max-buckets,itoa"`                // Specify the maximum number of buckets the user can own
+	MaxBuckets  *int   `url:"max-buckets,itoaIfNotNil"`        // Specify the maximum number of buckets the user can own
 	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
 	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
 }
@@ -155,6 +155,47 @@ func (api *API) CreateUser(conf UserConfig) (*User, error) {
 		return nil, errs[0]
 	}
 	body, _, err := api.put("/admin/user", values)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
+
+// UpdateUser modifies a user
+//
+// !! caps: users=write !!
+//
+// @UID
+// @DisplayName
+// @Email
+// @KeyType
+// @AccessKey
+// @SecretKey
+// @UserCaps
+// @GenerateKey
+// @MaxBuckets
+// @Suspended
+//
+func (api *API) UpdateUser(conf UserConfig) (*User, error) {
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+
+	var (
+		ret    = &User{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	values.Add("format", "json")
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	body, _, err := api.post("/admin/user", values)
 	if err != nil {
 		return nil, err
 	}
