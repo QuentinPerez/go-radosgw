@@ -118,6 +118,7 @@ type UserConfig struct {
 	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
 	MaxBuckets  int    `url:"max-buckets,itoa"`                // Specify the maximum number of buckets the user can own
 	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
+	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
 }
 
 // CreateUser creates a new user. By Default, a S3 key pair will be created automatically and returned in the response.
@@ -170,4 +171,37 @@ func (api *API) CreateUser(conf *UserConfig) (*User, error) {
 		return nil, err
 	}
 	return ret, nil
+}
+
+// RemoveUser removes an existing user.
+//
+// !! caps: users=write !!
+//
+// @UID
+// @PurgeData
+//
+func (api *API) RemoveUser(conf *UserConfig) error {
+	if conf == nil {
+		return errors.New("UserConfig must be not nil")
+	}
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	values.Add("format", "json")
+	if conf != nil {
+		values, errs = encurl.Translate(conf)
+		if len(errs) > 0 {
+			return errs[0]
+		}
+	}
+	_, _, err := api.delete("/admin/user", values)
+	if err != nil {
+		return err
+	}
+	return nil
 }
