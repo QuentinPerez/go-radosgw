@@ -39,6 +39,12 @@ type Usage struct {
 	} `json:"summary"`
 }
 
+// SubUsers represents the response of subuser requests
+type SubUsers []struct {
+	ID          string `json:"id"`
+	Permissions string `json:"permissions"`
+}
+
 // User represents the response of user requests
 type User struct {
 	Caps []struct {
@@ -52,13 +58,10 @@ type User struct {
 		SecretKey string `json:"secret_key"`
 		User      string `json:"user"`
 	} `json:"keys"`
-	MaxBuckets int `json:"max_buckets"`
-	Subusers   []struct {
-		ID          string `json:"id"`
-		Permissions string `json:"permissions"`
-	} `json:"subusers"`
-	Suspended int `json:"suspended"`
-	SwiftKeys []struct {
+	MaxBuckets int      `json:"max_buckets"`
+	Subusers   SubUsers `json:"subusers"`
+	Suspended  int      `json:"suspended"`
+	SwiftKeys  []struct {
 		SecretKey string `json:"secret_key"`
 		User      string `json:"user"`
 	} `json:"swift_keys"`

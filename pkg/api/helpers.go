@@ -221,14 +221,64 @@ func (api *API) RemoveUser(conf UserConfig) error {
 		errs   []error
 	)
 
-	values.Add("format", "json")
 	values, errs = encurl.Translate(conf)
 	if len(errs) > 0 {
 		return errs[0]
 	}
+	values.Add("format", "json")
 	_, _, err := api.delete("/admin/user", values)
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+// SubUserConfig subuser request
+type SubUserConfig struct {
+	UID            string `url:"uid,ifStringIsNotEmpty"`        // The user ID under which a subuser is to be created
+	SubUser        string `url:"subuser,ifStringIsNotEmpty"`    // Specify the subuser ID to be created
+	KeyType        string `url:"key-type,ifStringIsNotEmpty"`   // Key type to be generated, options are: swift (default), s3
+	Access         string `url:"access,ifStringIsNotEmpty"`     // Set access permissions for sub-user, should be one of read, write, readwrite, full
+	SecretKey      string `url:"secret-key,ifStringIsNotEmpty"` // Specify secret key
+	GenerateSecret bool   `url:"generate-secret,ifBoolIsTrue"`  // Generate the secret key
+}
+
+// CreateSubUser Creates a new subuser (primarily useful for clients using the Swift API).
+// Note that either gen-subuser or subuser is required for a valid request.
+// Note that in general for a subuser to be useful, it must be granted permissions by specifying access.
+// As with user creation if subuser is specified without secret, then a secret key will be automatically generated.
+//
+// !! caps:	users=write !!
+//
+// @UID
+// @SubUser
+// @KeyType
+// @Access
+// @SecretKey
+// @GenerateSecret
+//
+func (api *API) CreateSubUser(conf SubUserConfig) (*SubUsers, error) {
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+
+	var (
+		ret    = &SubUsers{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.put("/admin/user", values)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
 }
