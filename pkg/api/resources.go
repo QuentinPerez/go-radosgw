@@ -52,9 +52,15 @@ type User struct {
 		SecretKey string `json:"secret_key"`
 		User      string `json:"user"`
 	} `json:"keys"`
-	MaxBuckets int           `json:"max_buckets"`
-	Subusers   []interface{} `json:"subusers"`
-	Suspended  int           `json:"suspended"`
-	SwiftKeys  []interface{} `json:"swift_keys"`
-	UserID     string        `json:"user_id"`
+	MaxBuckets int `json:"max_buckets"`
+	Subusers   []struct {
+		ID          string `json:"id"`
+		Permissions string `json:"permissions"`
+	} `json:"subusers"`
+	Suspended int `json:"suspended"`
+	SwiftKeys []struct {
+		SecretKey string `json:"secret_key"`
+		User      string `json:"user"`
+	} `json:"swift_keys"`
+	UserID string `json:"user_id"`
 }
