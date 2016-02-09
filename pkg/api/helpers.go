@@ -357,3 +357,50 @@ func (api *API) RemoveSubUser(conf SubUserConfig) error {
 	return nil
 
 }
+
+// KeyConfig key request
+type KeyConfig struct {
+	UID            string `url:"uid,ifStringIsNotEmpty"`        // The user ID to receive the new key
+	SubUser        string `url:"subuser,ifStringIsNotEmpty"`    // The subuser ID to receive the new key
+	KeyType        string `url:"key-type,ifStringIsNotEmpty"`   // Key type to be generated, options are: swift, s3 (default)
+	AccessKey      string `url:"access-key,ifStringIsNotEmpty"` // Specify the access key
+	SecretKey      string `url:"secret-key,ifStringIsNotEmpty"` // Specify secret key
+	GenerateSecret bool   `url:"generate-secret,ifBoolIsTrue"`  // Generate a new key pair and add to the existing keyring
+}
+
+// CreateKey creates a new key. If a subuser is specified then by default created keys will be swift type.
+// If only one of access-key or secret-key is provided the committed key will be automatically generated,
+// that is if only secret-key is specified then access-key will be automatically generated.
+// By default, a generated key is added to the keyring without replacing an existing key pair.
+// If access-key is specified and refers to an existing key owned by the user then it will be modified.
+// The response is a container listing all keys of the same type as the key created.
+// Note that when creating a swift key, specifying the option access-key will have no effect.
+// Additionally, only one swift key may be held by each user or subuser.
+//
+// !! caps:	users=write !!
+//
+func (api *API) CreateKey(conf KeyConfig) (*KeysDefinition, error) {
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+
+	var (
+		ret    = &KeysDefinition{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.put("/admin/user", values, "key")
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, nil
+}
