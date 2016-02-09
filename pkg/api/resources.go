@@ -45,25 +45,25 @@ type SubUsers []struct {
 	Permissions string `json:"permissions"`
 }
 
+// KeysDefinition represents the response of key requests
+type KeysDefinition []struct {
+	AccessKey string `json:"access_key,omitempty"`
+	SecretKey string `json:"secret_key"`
+	User      string `json:"user"`
+}
+
 // User represents the response of user requests
 type User struct {
 	Caps []struct {
 		Perm string `json:"perm"`
 		Type string `json:"type"`
 	} `json:"caps"`
-	DisplayName string `json:"display_name"`
-	Email       string `json:"email"`
-	Keys        []struct {
-		AccessKey string `json:"access_key"`
-		SecretKey string `json:"secret_key"`
-		User      string `json:"user"`
-	} `json:"keys"`
-	MaxBuckets int      `json:"max_buckets"`
-	Subusers   SubUsers `json:"subusers"`
-	Suspended  int      `json:"suspended"`
-	SwiftKeys  []struct {
-		SecretKey string `json:"secret_key"`
-		User      string `json:"user"`
-	} `json:"swift_keys"`
-	UserID string `json:"user_id"`
+	DisplayName string         `json:"display_name"`
+	Email       string         `json:"email"`
+	Keys        KeysDefinition `json:"keys"`
+	MaxBuckets  int            `json:"max_buckets"`
+	Subusers    SubUsers       `json:"subusers"`
+	Suspended   int            `json:"suspended"`
+	SwiftKeys   KeysDefinition `json:"swift_keys"`
+	UserID      string         `json:"user_id"`
 }
