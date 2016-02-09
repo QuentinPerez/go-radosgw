@@ -67,3 +67,36 @@ type User struct {
 	SwiftKeys   KeysDefinition `json:"swift_keys"`
 	UserID      string         `json:"user_id"`
 }
+
+type stats struct {
+	Bucket      string `json:"bucket"`
+	BucketQuota struct {
+		Enabled    bool `json:"enabled"`
+		MaxObjects int  `json:"max_objects"`
+		MaxSizeKb  int  `json:"max_size_kb"`
+	} `json:"bucket_quota"`
+	ID        string `json:"id"`
+	IndexPool string `json:"index_pool"`
+	Marker    string `json:"marker"`
+	MasterVer string `json:"master_ver"`
+	MaxMarker string `json:"max_marker"`
+	Mtime     string `json:"mtime"`
+	Owner     string `json:"owner"`
+	Pool      string `json:"pool"`
+	Usage     struct {
+		RgwMain struct {
+			NumObjects   int `json:"num_objects"`
+			SizeKb       int `json:"size_kb"`
+			SizeKbActual int `json:"size_kb_actual"`
+		} `json:"rgw.main"`
+	} `json:"usage"`
+	Ver string `json:"ver"`
+}
+
+type bucket struct {
+	Name  string `json:"name,omitempty"`
+	Stats *stats `json:"stats,omitempty"`
+}
+
+// Buckets represents the response of bucket requests
+type Buckets []bucket

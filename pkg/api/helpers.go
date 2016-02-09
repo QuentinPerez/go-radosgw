@@ -442,3 +442,78 @@ func (api *API) RemoveKey(conf KeyConfig) error {
 	}
 	return nil
 }
+
+// BucketConfig bucket request
+type BucketConfig struct {
+	Bucket string `url:"bucket,ifStringIsNotEmpty"`
+	UID    string `url:"uid,ifStringIsNotEmpty"`
+	Stats  bool   `url:"stats,ifBoolIsTrue"`
+}
+
+// GetBucket gets information about a subset of the existing buckets.
+// If uid is specified without bucket then all buckets beloning to the user will be returned.
+// If bucket alone is specified, information for that particular bucket will be retrieved
+//
+// !! caps:	buckets=read !!
+//
+//@Bucket
+//@UID
+//@Stats
+//
+func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
+	var (
+		ret     = Buckets{}
+		values  = url.Values{}
+		errs    []error
+		variant interface{}
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.get("/admin/bucket", values)
+	if err != nil {
+		return nil, err
+	}
+	if err = json.Unmarshal(body, &variant); err != nil {
+		return nil, err
+	}
+	if tab, ok := variant.([]interface{}); ok {
+		add := bucket{}
+		for _, v := range tab {
+			if name, ok := v.(string); ok {
+				if add.Name != "" {
+					ret = append(ret, add)
+					add = bucket{}
+				}
+				add.Name = name
+			} else {
+				js, err := json.Marshal(v)
+				if err != nil {
+					return nil, err
+				}
+				if add.Stats != nil {
+					ret = append(ret, add)
+					add = bucket{}
+				}
+				add.Stats = new(stats)
+				err = json.Unmarshal(js, add.Stats)
+				if err != nil {
+					return nil, err
+				}
+			}
+		}
+		ret = append(ret, add)
+	} else {
+		add := bucket{}
+		add.Stats = new(stats)
+		err = json.Unmarshal(body, add.Stats)
+		if err != nil {
+			return nil, err
+		}
+		ret = append(ret, add)
+	}
+	return ret, nil
+}
