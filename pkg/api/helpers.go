@@ -379,6 +379,13 @@ type KeyConfig struct {
 //
 // !! caps:	users=write !!
 //
+// @UID
+// @SubUser
+// @KeyType
+// @AccessKey
+// @SecretKey
+// @GenerateSecret
+//
 func (api *API) CreateKey(conf KeyConfig) (*KeysDefinition, error) {
 	if conf.UID == "" {
 		return nil, errors.New("UID field is required")
@@ -403,4 +410,35 @@ func (api *API) CreateKey(conf KeyConfig) (*KeysDefinition, error) {
 		return nil, err
 	}
 	return ret, nil
+}
+
+// RemoveKey removes an existing key
+//
+// !! caps:	users=write !!
+//
+// @UID
+// @SubUser
+// @KeyType
+// @AccessKey
+//
+func (api *API) RemoveKey(conf KeyConfig) error {
+	if conf.AccessKey == "" {
+		return errors.New("AccessKey field is required")
+	}
+
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.delete("/admin/user", values, "key")
+	if err != nil {
+		return err
+	}
+	return nil
 }
