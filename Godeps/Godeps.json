@@ -4,7 +4,7 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/QuentinPerez/go-encodeUrl",
-			"Rev": "0d1cd11e64d6162a92d03a576089e981c30ea5cd"
+			"Rev": "b2b9f4e7b0ac02f7642f8a54f6311401d45aaa2a"
 		},
 		{
 			"ImportPath": "github.com/Sirupsen/logrus",
