@@ -445,9 +445,12 @@ func (api *API) RemoveKey(conf KeyConfig) error {
 
 // BucketConfig bucket request
 type BucketConfig struct {
-	Bucket string `url:"bucket,ifStringIsNotEmpty"`
-	UID    string `url:"uid,ifStringIsNotEmpty"`
-	Stats  bool   `url:"stats,ifBoolIsTrue"`
+	Bucket       string `url:"bucket,ifStringIsNotEmpty"`
+	UID          string `url:"uid,ifStringIsNotEmpty"`
+	Stats        bool   `url:"stats,ifBoolIsTrue"`
+	CheckObjects bool   `url:"check-objects,ifBoolIsTrue"`
+	Fix          bool   `url:"fix,ifBoolIsTrue"`
+	PurgeObjects bool   `url:"purge-objects,ifBoolIsTrue"`
 }
 
 // GetBucket gets information about a subset of the existing buckets.
@@ -516,4 +519,32 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 		ret = append(ret, add)
 	}
 	return ret, nil
+}
+
+// RemoveBucket removes an existing bucket.
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@PurgeObjects
+//
+func (api *API) RemoveBucket(conf BucketConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return errors.New("Bucket field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.delete("/admin/bucket", values)
+	if err != nil {
+		return err
+	}
+	return nil
 }
