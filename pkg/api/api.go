@@ -41,10 +41,10 @@ func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err 
 	if resp != nil {
 		defer resp.Body.Close()
 	}
-	statusCode = resp.StatusCode
 	if err != nil {
 		return
 	}
+	statusCode = resp.StatusCode
 	body, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return
