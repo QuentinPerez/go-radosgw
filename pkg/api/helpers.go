@@ -445,12 +445,12 @@ func (api *API) RemoveKey(conf KeyConfig) error {
 
 // BucketConfig bucket request
 type BucketConfig struct {
-	Bucket       string `url:"bucket,ifStringIsNotEmpty"`
-	UID          string `url:"uid,ifStringIsNotEmpty"`
-	Stats        bool   `url:"stats,ifBoolIsTrue"`
-	CheckObjects bool   `url:"check-objects,ifBoolIsTrue"`
-	Fix          bool   `url:"fix,ifBoolIsTrue"`
-	PurgeObjects bool   `url:"purge-objects,ifBoolIsTrue"`
+	Bucket       string `url:"bucket,ifStringIsNotEmpty"`  // The bucket to return info on
+	UID          string `url:"uid,ifStringIsNotEmpty"`     // The user to retrieve bucket information for
+	Stats        bool   `url:"stats,ifBoolIsTrue"`         // Return bucket statistics
+	CheckObjects bool   `url:"check-objects,ifBoolIsTrue"` // Check multipart object accounting
+	Fix          bool   `url:"fix,ifBoolIsTrue"`           // Also fix the bucket index when checking
+	PurgeObjects bool   `url:"purge-objects,ifBoolIsTrue"` // Remove a buckets objects before deletion
 }
 
 // GetBucket gets information about a subset of the existing buckets.
@@ -543,6 +543,38 @@ func (api *API) RemoveBucket(conf BucketConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.delete("/admin/bucket", values)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// UnlinkBucket unlinks a bucket from a specified user.
+// Primarily useful for changing bucket ownership.
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@UID
+//
+func (api *API) UnlinkBucket(conf BucketConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return errors.New("Bucket field is required")
+	}
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.post("/admin/bucket", values)
 	if err != nil {
 		return err
 	}
