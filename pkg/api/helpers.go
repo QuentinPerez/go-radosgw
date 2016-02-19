@@ -41,7 +41,7 @@ func (api *API) GetUsage(conf UsageConfig) (*Usage, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.get("/admin/usage", values)
+	body, _, err := api.call("GET", "/usage", values, true)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (api *API) DeleteUsage(conf UsageConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.delete("/admin/usage", values)
+	_, _, err := api.call("DELETE", "/usage", values, true)
 	if err != nil {
 		return err
 	}
@@ -92,7 +92,7 @@ func (api *API) GetUser(uid ...string) (*User, error) {
 	if len(uid) != 0 {
 		values.Add("uid", uid[0])
 	}
-	body, _, err := api.get("/admin/user", values)
+	body, _, err := api.call("GET", "/user", values, true)
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func (api *API) CreateUser(conf UserConfig) (*User, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.put("/admin/user", values)
+	body, _, err := api.call("PUT", "/user", values, true)
 	if err != nil {
 		return nil, err
 	}
@@ -195,7 +195,7 @@ func (api *API) UpdateUser(conf UserConfig) (*User, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.post("/admin/user", values)
+	body, _, err := api.call("POST", "/user", values, true)
 	if err != nil {
 		return nil, err
 	}
@@ -226,7 +226,7 @@ func (api *API) RemoveUser(conf UserConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.delete("/admin/user", values)
+	_, _, err := api.call("DELETE", "/user", values, true)
 	if err != nil {
 		return err
 	}
@@ -275,7 +275,7 @@ func (api *API) CreateSubUser(conf SubUserConfig) (*SubUsers, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.put("/admin/user", values, "subuser")
+	body, _, err := api.call("PUT", "/user", values, true, "subuser")
 	if err != nil {
 		return nil, err
 	}
@@ -315,7 +315,7 @@ func (api *API) UpdateSubUser(conf SubUserConfig) (*SubUsers, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.post("/admin/user", values, "subuser")
+	body, _, err := api.call("POST", "/user", values, true, "subuser")
 	if err != nil {
 		return nil, err
 	}
@@ -350,7 +350,7 @@ func (api *API) RemoveSubUser(conf SubUserConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.delete("/admin/user", values, "subuser")
+	_, _, err := api.call("DELETE", "/user", values, true, "subuser")
 	if err != nil {
 		return err
 	}
@@ -402,7 +402,7 @@ func (api *API) CreateKey(conf KeyConfig) (*KeysDefinition, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.put("/admin/user", values, "key")
+	body, _, err := api.call("PUT", "/user", values, true, "key")
 	if err != nil {
 		return nil, err
 	}
@@ -436,7 +436,7 @@ func (api *API) RemoveKey(conf KeyConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.delete("/admin/user", values, "key")
+	_, _, err := api.call("DELETE", "/user", values, true, "key")
 	if err != nil {
 		return err
 	}
@@ -476,7 +476,7 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 		return nil, errs[0]
 	}
 	values.Add("format", "json")
-	body, _, err := api.get("/admin/bucket", values)
+	body, _, err := api.call("GET", "/bucket", values, true)
 	if err != nil {
 		return nil, err
 	}
@@ -542,7 +542,7 @@ func (api *API) RemoveBucket(conf BucketConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.delete("/admin/bucket", values)
+	_, _, err := api.call("DELETE", "/bucket", values, true)
 	if err != nil {
 		return err
 	}
@@ -574,7 +574,7 @@ func (api *API) UnlinkBucket(conf BucketConfig) error {
 		return errs[0]
 	}
 	values.Add("format", "json")
-	_, _, err := api.post("/admin/bucket", values)
+	_, _, err := api.call("POST", "/bucket", values, true)
 	if err != nil {
 		return err
 	}
