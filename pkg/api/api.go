@@ -16,18 +16,23 @@ type API struct {
 	host      string
 	accessKey string
 	secretKey string
+	prefix    string
 }
 
 // New returns client for Ceph RADOS Gateway
-func New(host, accessKey, secretKey string) *API {
-	return &API{host, accessKey, secretKey}
+func New(host, accessKey, secretKey string, adminPrefix ...string) *API {
+	prefix := "admin"
+	if len(adminPrefix) > 0 {
+		prefix = adminPrefix[0]
+	}
+	return &API{host, accessKey, secretKey, prefix}
 }
 
 func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err error) {
 	var apiErr apiError
 	client := http.Client{}
 
-	// fmt.Println("URL:", url)
+	// fmt.Printf("URL [%v]: %v\n", verb, url)
 	req, err := http.NewRequest(verb, url, nil)
 	if err != nil {
 		return
