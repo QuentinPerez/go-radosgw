@@ -80,6 +80,8 @@ func (api *API) DeleteUsage(conf UsageConfig) error {
 
 // GetUser gets user information. If no user is specified returns the list of all users along with suspension information
 //
+// ** If no user is specified returns the list ... ** Don't works for me
+//
 // !! caps: users=read !!
 //
 // @uid
