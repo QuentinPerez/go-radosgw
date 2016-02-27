@@ -12,6 +12,7 @@ import (
 	"github.com/smartystreets/go-aws-auth"
 )
 
+// API contains fields to communicate with the rados-gateway
 type API struct {
 	host      string
 	accessKey string
