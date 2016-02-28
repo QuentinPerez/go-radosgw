@@ -16,7 +16,7 @@ func printRawMode(out io.Writer, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	fmt.Fprintf(out, "%s\n", string(js))
+	fmt.Fprintf(out, "%s\n", js)
 	return nil
 }
 
