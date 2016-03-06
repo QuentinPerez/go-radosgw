@@ -495,9 +495,9 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 				}
 				add.Name = name
 			} else {
-				js, err := json.Marshal(v)
-				if err != nil {
-					return nil, err
+				js, errMarshal := json.Marshal(v)
+				if errMarshal != nil {
+					return nil, errMarshal
 				}
 				if add.Stats != nil {
 					ret = append(ret, add)
