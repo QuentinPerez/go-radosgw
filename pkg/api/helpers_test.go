@@ -37,6 +37,30 @@ func TestCreateUser(t *testing.T) {
 	})
 }
 
+func TestCreateUserWithoutUID(t *testing.T) {
+	Convey("Testing Create user without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+
+		user, err := api.CreateUser(UserConfig{
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldNotBeNil)
+		So(user, ShouldBeNil)
+	})
+}
+
+func TestCreateUserWithoutName(t *testing.T) {
+	Convey("Testing Create user without name", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+
+		user, err := api.CreateUser(UserConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+		So(user, ShouldBeNil)
+	})
+}
+
 func TestGetUser(t *testing.T) {
 	Convey("Testing Get user", t, func() {
 		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
@@ -58,6 +82,18 @@ func TestUpdateUser(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(user, ShouldNotBeNil)
 		So(user.Email, ShouldEqual, "UnitTest@test.com")
+	})
+}
+
+func TestUpdateUserWithoutUID(t *testing.T) {
+	Convey("Testing Update user without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.UpdateUser(UserConfig{
+			Email: "UnitTest@test.com",
+		})
+		So(err, ShouldNotBeNil)
+		So(user, ShouldBeNil)
 	})
 }
 
