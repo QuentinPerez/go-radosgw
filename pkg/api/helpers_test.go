@@ -224,3 +224,115 @@ func TestDeleteAllUsages(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestCreateKey(t *testing.T) {
+	Convey("Testing Create Key", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		keys, err := api.CreateKey(KeyConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(keys, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestCreateKeyWithoutUID(t *testing.T) {
+	Convey("Testing Create Key without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		keys, err := api.CreateKey(KeyConfig{})
+		So(err, ShouldNotBeNil)
+		So(keys, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveKey(t *testing.T) {
+	Convey("Testing Remove Key", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		keys, err := api.CreateKey(KeyConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(keys, ShouldNotBeNil)
+
+		err = api.RemoveKey(KeyConfig{
+			AccessKey: (*keys)[0].AccessKey,
+		})
+
+		So(err, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveKeyWithoutAccessKey(t *testing.T) {
+	Convey("Testing Remove Key without access key", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		keys, err := api.CreateKey(KeyConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(keys, ShouldNotBeNil)
+
+		err = api.RemoveKey(KeyConfig{})
+
+		So(err, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
