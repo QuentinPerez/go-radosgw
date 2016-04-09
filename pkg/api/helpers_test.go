@@ -336,3 +336,253 @@ func TestRemoveKeyWithoutAccessKey(t *testing.T) {
 		So(err, ShouldBeNil)
 	})
 }
+
+func TestCreateSubUser(t *testing.T) {
+	Convey("Testing CreateSubUser", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestCreateSubUserWithoutUID(t *testing.T) {
+	Convey("Testing CreateSubUser without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldNotBeNil)
+		So(sub, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestUpdateSubUser(t *testing.T) {
+	Convey("Testing UpdateSubUser", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		sub, err = api.UpdateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: (*sub)[0].ID,
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestUpdateSubUserWithoutUID(t *testing.T) {
+	Convey("Testing UpdateSubUser without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		sub, err = api.UpdateSubUser(SubUserConfig{
+			SubUser: (*sub)[0].ID,
+		})
+		So(err, ShouldNotBeNil)
+		So(sub, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestUpdateSubUserWithoutSubUID(t *testing.T) {
+	Convey("Testing UpdateSubUser without SubUID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		sub, err = api.UpdateSubUser(SubUserConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+		So(sub, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveSubUser(t *testing.T) {
+	Convey("Testing RemoveSubUser", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		err = api.RemoveSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: (*sub)[0].ID,
+		})
+		So(err, ShouldBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveSubUserWithoutUID(t *testing.T) {
+	Convey("Testing RemoveSubUser without UID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		err = api.RemoveSubUser(SubUserConfig{
+			SubUser: (*sub)[0].ID,
+		})
+		So(err, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestRemoveSubUserWithoutSubUID(t *testing.T) {
+	Convey("Testing RemoveSubUser without SubUID", t, func() {
+		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+		So(user.DisplayName, ShouldEqual, "Unit Test")
+
+		sub, err := api.CreateSubUser(SubUserConfig{
+			UID:     "UnitTest",
+			SubUser: "SubUnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(sub, ShouldNotBeNil)
+
+		err = api.RemoveSubUser(SubUserConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+
+		err = api.RemoveUser(UserConfig{
+			UID:       "UnitTest",
+			PurgeData: true,
+		})
+		So(err, ShouldBeNil)
+	})
+}
