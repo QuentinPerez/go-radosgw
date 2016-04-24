@@ -72,10 +72,7 @@ func (api *API) DeleteUsage(conf UsageConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("DELETE", "/usage", values, true)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // GetUser gets user information. If no user is specified returns the list of all users along with suspension information
@@ -113,8 +110,8 @@ type UserConfig struct {
 	AccessKey   string `url:"access-key,ifStringIsNotEmpty"`   // Specify access key
 	SecretKey   string `url:"secret-key,ifStringIsNotEmpty"`   // Specify secret key
 	UserCaps    string `url:"user-caps,ifStringIsNotEmpty"`    // User capabilities
-	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
 	MaxBuckets  *int   `url:"max-buckets,itoaIfNotNil"`        // Specify the maximum number of buckets the user can own
+	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
 	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
 	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // When specified the buckets and objects belonging to the user will also be removed
 }
@@ -229,10 +226,7 @@ func (api *API) RemoveUser(conf UserConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("DELETE", "/user", values, true)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // SubUserConfig subuser request
@@ -353,11 +347,7 @@ func (api *API) RemoveSubUser(conf SubUserConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("DELETE", "/user", values, true, "subuser")
-	if err != nil {
-		return err
-	}
-	return nil
-
+	return err
 }
 
 // KeyConfig key request
@@ -439,10 +429,7 @@ func (api *API) RemoveKey(conf KeyConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("DELETE", "/user", values, true, "key")
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // BucketConfig bucket request
@@ -545,10 +532,7 @@ func (api *API) RemoveBucket(conf BucketConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("DELETE", "/bucket", values, true)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 // UnlinkBucket unlinks a bucket from a specified user.
@@ -577,8 +561,5 @@ func (api *API) UnlinkBucket(conf BucketConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("POST", "/bucket", values, true)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
