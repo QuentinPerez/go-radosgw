@@ -1,0 +1,4 @@
+package: github.com/QuentinPerez/go-radosgw
+import:
+- package: github.com/QuentinPerez/go-encodeUrl
+- package: github.com/smartystreets/go-aws-auth
