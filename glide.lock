@@ -1,8 +1,25 @@
 hash: f56a598970b4ae8dead7fbf6817179e10c3c25809d0ee5f4a314868b0c328b8e
-updated: 2016-04-30T15:55:35.351700098+02:00
+updated: 2017-01-06T10:58:56.396556418+01:00
 imports:
 - name: github.com/QuentinPerez/go-encodeUrl
-  version: dabace4dfbedc22aae22784fd431cba3b1e9c023
+  version: 645a9dbeee154c68e218053e604de21f1e3d91d0
 - name: github.com/smartystreets/go-aws-auth
-  version: 047be5a178d8309df2060aa5a4e757ec55eb58b1
-devImports: []
+  version: 2043e6d0bb7e4c18464a7bba562acbe482e3cabd
+testImports:
+- name: github.com/gopherjs/gopherjs
+  version: db2cfff3878815d744fb4a4bd07cba0596eaf2a5
+  subpackages:
+  - js
+- name: github.com/jtolds/gls
+  version: bb0351aa7eb6f322f32667d51375f26a2bca6628
+- name: github.com/smartystreets/assertions
+  version: 26acb9229f421449ac63d014995b282d59261a8b
+  subpackages:
+  - internal/go-render/render
+  - internal/oglematchers
+- name: github.com/smartystreets/goconvey
+  version: 3c2572876754c4669ae7417b219f0b30a29b32c7
+  subpackages:
+  - convey
+  - convey/gotest
+  - convey/reporting
