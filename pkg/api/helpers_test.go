@@ -8,9 +8,19 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+func createNewAPI() *API {
+	url := os.Getenv("RADOSGW_API")
+	access := os.Getenv("RADOSGW_ACCESS")
+	secret := os.Getenv("RADOSGW_SECRET")
+	if url == "" || access == "" || secret == "" {
+		panic("You must export environment variables [RADOSGW_API, RADOSGW_ACCESS, RADOSGW_ACCESS]")
+	}
+	return New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+}
+
 func TestNewAPI(t *testing.T) {
 	Convey("Testing New API", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		So(api, ShouldNotBeNil)
 	})
@@ -18,7 +28,7 @@ func TestNewAPI(t *testing.T) {
 
 func TestNewAPIWithPrefix(t *testing.T) {
 	Convey("Testing New API with prefix", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+		api := createNewAPI()
 
 		So(api, ShouldNotBeNil)
 	})
@@ -26,7 +36,7 @@ func TestNewAPIWithPrefix(t *testing.T) {
 
 func TestCreateUser(t *testing.T) {
 	Convey("Testing Create user", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -40,7 +50,7 @@ func TestCreateUser(t *testing.T) {
 
 func TestCreateUserWithoutUID(t *testing.T) {
 	Convey("Testing Create user without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			DisplayName: "Unit Test",
@@ -52,7 +62,7 @@ func TestCreateUserWithoutUID(t *testing.T) {
 
 func TestCreateUserWithoutName(t *testing.T) {
 	Convey("Testing Create user without name", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"), "admin")
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID: "UnitTest",
@@ -64,7 +74,7 @@ func TestCreateUserWithoutName(t *testing.T) {
 
 func TestGetUser(t *testing.T) {
 	Convey("Testing Get user", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.GetUser("UnitTest")
 		So(err, ShouldBeNil)
@@ -74,7 +84,7 @@ func TestGetUser(t *testing.T) {
 
 func TestUpdateUser(t *testing.T) {
 	Convey("Testing Update user", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.UpdateUser(UserConfig{
 			UID:   "UnitTest",
@@ -82,13 +92,13 @@ func TestUpdateUser(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 		So(user, ShouldNotBeNil)
-		So(user.Email, ShouldEqual, "UnitTest@test.com")
+		So(user.Email, ShouldEqual, "unittest@test.com")
 	})
 }
 
 func TestUpdateUserWithoutUID(t *testing.T) {
 	Convey("Testing Update user without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.UpdateUser(UserConfig{
 			Email: "UnitTest@test.com",
@@ -100,7 +110,7 @@ func TestUpdateUserWithoutUID(t *testing.T) {
 
 func TestRemoveUser(t *testing.T) {
 	Convey("Testing Remove user", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		err := api.RemoveUser(UserConfig{
 			UID:       "UnitTest",
@@ -115,7 +125,7 @@ func TestRemoveUser(t *testing.T) {
 
 func TestRemoveUserWithoutUID(t *testing.T) {
 	Convey("Testing Remove user without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		err := api.RemoveUser(UserConfig{
 			PurgeData: true,
@@ -126,7 +136,7 @@ func TestRemoveUserWithoutUID(t *testing.T) {
 
 func TestGetUsageEmpty(t *testing.T) {
 	Convey("Testing Get Usage with empty struct", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		usage, err := api.GetUsage(UsageConfig{})
 		So(err, ShouldBeNil)
@@ -138,7 +148,7 @@ func TestGetUsageEmpty(t *testing.T) {
 
 func TestGetUsageSummary(t *testing.T) {
 	Convey("Testing Get Usage summary field", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		usage, err := api.GetUsage(UsageConfig{
 			ShowSummary: true,
@@ -152,7 +162,7 @@ func TestGetUsageSummary(t *testing.T) {
 
 func TestGetUsageEntries(t *testing.T) {
 	Convey("Testing Get Usage entries field", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		usage, err := api.GetUsage(UsageConfig{
 			ShowEntries: true,
@@ -166,7 +176,7 @@ func TestGetUsageEntries(t *testing.T) {
 
 func TestGetUsageEntriesSummary(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		usage, err := api.GetUsage(UsageConfig{
 			ShowEntries: true,
@@ -181,7 +191,7 @@ func TestGetUsageEntriesSummary(t *testing.T) {
 
 func TestGetUsageEntriesSummaryWithUID(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field with specified uid", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		usage, err := api.GetUsage(UsageConfig{
 			UID:         "UnitTest",
@@ -197,7 +207,7 @@ func TestGetUsageEntriesSummaryWithUID(t *testing.T) {
 
 func TestGetUsageEntriesSummaryWithUIDStartTime(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field with specified uid, and start Time", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		now := time.Now().AddDate(0, 0, -1)
 		usage, err := api.GetUsage(UsageConfig{
@@ -215,7 +225,7 @@ func TestGetUsageEntriesSummaryWithUIDStartTime(t *testing.T) {
 
 func TestDeleteAllUsages(t *testing.T) {
 	Convey("Testing Delete all usages", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		err := api.DeleteUsage(UsageConfig{
 			UID:       "UnitTest",
@@ -227,7 +237,7 @@ func TestDeleteAllUsages(t *testing.T) {
 
 func TestCreateKey(t *testing.T) {
 	Convey("Testing Create Key", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -253,7 +263,7 @@ func TestCreateKey(t *testing.T) {
 
 func TestCreateKeyWithoutUID(t *testing.T) {
 	Convey("Testing Create Key without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -277,7 +287,7 @@ func TestCreateKeyWithoutUID(t *testing.T) {
 
 func TestRemoveKey(t *testing.T) {
 	Convey("Testing Remove Key", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -309,7 +319,7 @@ func TestRemoveKey(t *testing.T) {
 
 func TestRemoveKeyWithoutAccessKey(t *testing.T) {
 	Convey("Testing Remove Key without access key", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -339,7 +349,7 @@ func TestRemoveKeyWithoutAccessKey(t *testing.T) {
 
 func TestCreateSubUser(t *testing.T) {
 	Convey("Testing CreateSubUser", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -366,7 +376,7 @@ func TestCreateSubUser(t *testing.T) {
 
 func TestCreateSubUserWithoutUID(t *testing.T) {
 	Convey("Testing CreateSubUser without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -392,7 +402,7 @@ func TestCreateSubUserWithoutUID(t *testing.T) {
 
 func TestUpdateSubUser(t *testing.T) {
 	Convey("Testing UpdateSubUser", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -426,7 +436,7 @@ func TestUpdateSubUser(t *testing.T) {
 
 func TestUpdateSubUserWithoutUID(t *testing.T) {
 	Convey("Testing UpdateSubUser without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -459,7 +469,7 @@ func TestUpdateSubUserWithoutUID(t *testing.T) {
 
 func TestUpdateSubUserWithoutSubUID(t *testing.T) {
 	Convey("Testing UpdateSubUser without SubUID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -492,7 +502,7 @@ func TestUpdateSubUserWithoutSubUID(t *testing.T) {
 
 func TestRemoveSubUser(t *testing.T) {
 	Convey("Testing RemoveSubUser", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -525,7 +535,7 @@ func TestRemoveSubUser(t *testing.T) {
 
 func TestRemoveSubUserWithoutUID(t *testing.T) {
 	Convey("Testing RemoveSubUser without UID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
@@ -557,7 +567,7 @@ func TestRemoveSubUserWithoutUID(t *testing.T) {
 
 func TestRemoveSubUserWithoutSubUID(t *testing.T) {
 	Convey("Testing RemoveSubUser without SubUID", t, func() {
-		api := New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+		api := createNewAPI()
 
 		user, err := api.CreateUser(UserConfig{
 			UID:         "UnitTest",
