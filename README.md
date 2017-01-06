@@ -1,7 +1,19 @@
 
 ## Overview
 
-radosgw-admin is a RADOS gateway user administration utility. It allows creating and modifying users.
+```
+radosgw-admin is a RADOS gateway user administration utility.
+It allows operations on user/bucket/quota/capability.
+```
+
+:warning: This library has been tested with **Jewel** but it should work with **Hammer** too.
+
+|Operation    | Implemented        | Tests               |
+|-------------|--------------------|---------------------|
+|  User       | :white_check_mark: |:white_check_mark:   |
+|  Bucket     | :x:                |:x:                  |
+|  Capability | :x:                |:x:                  |
+|  Quota      | :x:                |:x:                  |
 
 ## Setup
 
@@ -40,7 +52,7 @@ Feel free to contribute :smiley::beers:
 
 ## Links
 
-- **Radowsgw-admin Documentaion**: http://docs.ceph.com/docs/hammer/man/8/radosgw-admin/
+- **Radowsgw-admin Documentaion**: http://docs.ceph.com/docs/jewel/radosgw/adminops/
 - **Report bugs**: https://github.com/QuentinPerez/go-radosgw/issues
 
 ## License
