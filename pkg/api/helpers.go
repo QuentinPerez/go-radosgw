@@ -6,6 +6,8 @@ import (
 	"net/url"
 	"time"
 
+	"fmt"
+
 	"github.com/QuentinPerez/go-encodeUrl"
 )
 
@@ -563,4 +565,153 @@ func (api *API) UnlinkBucket(conf BucketConfig) error {
 	values.Add("format", "json")
 	_, _, err := api.call("POST", "/bucket", values, true)
 	return err
+}
+
+// CheckBucket checks the index of an existing bucket.
+// NOTE: to check multipart object accounting with check-objects, fix must be set to True.
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@CheckObjects
+//@Fix
+//
+func (api *API) CheckBucket(conf BucketConfig) (string, error) {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return "", errors.New("Bucket field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return "", errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("GET", "/bucket", values, true, "index")
+	return string(body), err
+}
+
+// LinkBucket links a bucket to a specified user, unlinking the bucket from any previous user.
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@UID
+//
+func (api *API) LinkBucket(conf BucketConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	// FIXME doesn't work
+	return fmt.Errorf("LinkBucket not implemented yet")
+	if conf.Bucket == "" {
+		return errors.New("Bucket field is required")
+	}
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("PUT", "/bucket", values, true)
+	// return string(body), err
+	_ = body
+	return err
+}
+
+// RemoveObject removes an existing object. NOTE: Does not require owner to be non-suspended.
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@Object
+//
+func (api *API) RemoveObject(conf BucketConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return errors.New("Bucket field is required")
+	}
+	if conf.Object == "" {
+		return errors.New("Object field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.call("DELETE", "/bucket", values, true, "object")
+	return err
+}
+
+// GetBucketPolicy reads the bucket policy
+//
+// !! caps:	buckets=read !!
+//
+//@Bucket
+//
+func (api *API) GetBucketPolicy(conf BucketConfig) (*Policy, error) {
+	var (
+		ret    = &Policy{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return nil, errors.New("Bucket field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("GET", "/bucket", values, true, "policy")
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, err
+
+}
+
+// GetObjectPolicy reads the object policy
+//
+// !! caps:	buckets=read !!
+//
+//@Bucket
+//@Object
+//
+func (api *API) GetObjectPolicy(conf BucketConfig) (*Policy, error) {
+	var (
+		ret    = &Policy{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return nil, errors.New("Bucket field is required")
+	}
+	if conf.Object == "" {
+		return nil, errors.New("Object field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("GET", "/bucket", values, true, "policy")
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, err
+
 }

@@ -2,7 +2,6 @@ package radosAPI
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -633,7 +632,6 @@ func TestBucket(t *testing.T) {
 		buckets, err := api.GetBucket(BucketConfig{
 			UID: "UnitTest",
 		})
-		fmt.Println("tanere")
 		So(err, ShouldBeNil)
 		So(buckets, ShouldNotBeNil)
 	})
