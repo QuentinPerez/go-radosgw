@@ -113,7 +113,7 @@ type UserConfig struct {
 	MaxBuckets  *int   `url:"max-buckets,itoaIfNotNil"`        // Specify the maximum number of buckets the user can own
 	GenerateKey bool   `url:"generate-key,ifBoolIsTrue"`       // Generate a new key pair and add to the existing keyring
 	Suspended   bool   `url:"suspended,ifBoolIsTrue"`          // Specify whether the user should be suspended
-	PurgeData   bool   `url:"suspended,ifBoolIsTrue"`          // When specified the buckets and objects belonging to the user will also be removed
+	PurgeData   bool   `url:"purge-data,ifBoolIsTrue"`         // When specified the buckets and objects belonging to the user will also be removed
 }
 
 // CreateUser creates a new user. By Default, a S3 key pair will be created automatically and returned in the response.
