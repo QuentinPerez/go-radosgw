@@ -440,6 +440,7 @@ type BucketConfig struct {
 	CheckObjects bool   `url:"check-objects,ifBoolIsTrue"` // Check multipart object accounting
 	Fix          bool   `url:"fix,ifBoolIsTrue"`           // Also fix the bucket index when checking
 	PurgeObjects bool   `url:"purge-objects,ifBoolIsTrue"` // Remove a buckets objects before deletion
+	Object       string `url:"object,ifStringIsNotEmpty"`  // The object to remove
 }
 
 // GetBucket gets information about a subset of the existing buckets.
@@ -473,12 +474,12 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 		return nil, err
 	}
 	if tab, ok := variant.([]interface{}); ok {
-		add := bucket{}
+		add := Bucket{}
 		for _, v := range tab {
 			if name, ok := v.(string); ok {
 				if add.Name != "" {
 					ret = append(ret, add)
-					add = bucket{}
+					add = Bucket{}
 				}
 				add.Name = name
 			} else {
@@ -488,9 +489,9 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 				}
 				if add.Stats != nil {
 					ret = append(ret, add)
-					add = bucket{}
+					add = Bucket{}
 				}
-				add.Stats = new(stats)
+				add.Stats = new(Stats)
 				err = json.Unmarshal(js, add.Stats)
 				if err != nil {
 					return nil, err
@@ -499,8 +500,8 @@ func (api *API) GetBucket(conf BucketConfig) (Buckets, error) {
 		}
 		ret = append(ret, add)
 	} else {
-		add := bucket{}
-		add.Stats = new(stats)
+		add := Bucket{}
+		add.Stats = new(Stats)
 		err = json.Unmarshal(body, add.Stats)
 		if err != nil {
 			return nil, err

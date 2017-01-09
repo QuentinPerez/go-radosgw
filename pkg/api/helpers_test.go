@@ -1,32 +1,39 @@
 package radosAPI
 
 import (
+	"bytes"
+	"fmt"
 	"os"
 	"testing"
 	"time"
 
+	"strings"
+
+	minio "github.com/minio/minio-go"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+var (
+	Url    = os.Getenv("RADOSGW_API")
+	Access = os.Getenv("RADOSGW_ACCESS")
+	Secret = os.Getenv("RADOSGW_SECRET")
+)
+
 func createNewAPI() *API {
-	url := os.Getenv("RADOSGW_API")
-	access := os.Getenv("RADOSGW_ACCESS")
-	secret := os.Getenv("RADOSGW_SECRET")
-	if url == "" || access == "" || secret == "" {
-		panic("You must export environment variables [RADOSGW_API, RADOSGW_ACCESS, RADOSGW_ACCESS]")
+	api, err := New(Url, Access, Secret)
+	if err != nil {
+		panic(err)
 	}
-	return New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+	return api
 }
 
-func TestNewAPI(t *testing.T) {
+func TestAPI(t *testing.T) {
 	Convey("Testing New API", t, func() {
 		api := createNewAPI()
 
 		So(api, ShouldNotBeNil)
 	})
-}
 
-func TestNewAPIWithPrefix(t *testing.T) {
 	Convey("Testing New API with prefix", t, func() {
 		api := createNewAPI()
 
@@ -34,7 +41,7 @@ func TestNewAPIWithPrefix(t *testing.T) {
 	})
 }
 
-func TestCreateUser(t *testing.T) {
+func TestUser(t *testing.T) {
 	Convey("Testing Create user", t, func() {
 		api := createNewAPI()
 
@@ -46,9 +53,7 @@ func TestCreateUser(t *testing.T) {
 		So(user, ShouldNotBeNil)
 		So(user.DisplayName, ShouldEqual, "Unit Test")
 	})
-}
 
-func TestCreateUserWithoutUID(t *testing.T) {
 	Convey("Testing Create user without UID", t, func() {
 		api := createNewAPI()
 
@@ -58,9 +63,7 @@ func TestCreateUserWithoutUID(t *testing.T) {
 		So(err, ShouldNotBeNil)
 		So(user, ShouldBeNil)
 	})
-}
 
-func TestCreateUserWithoutName(t *testing.T) {
 	Convey("Testing Create user without name", t, func() {
 		api := createNewAPI()
 
@@ -70,9 +73,7 @@ func TestCreateUserWithoutName(t *testing.T) {
 		So(err, ShouldNotBeNil)
 		So(user, ShouldBeNil)
 	})
-}
 
-func TestGetUser(t *testing.T) {
 	Convey("Testing Get user", t, func() {
 		api := createNewAPI()
 
@@ -80,9 +81,7 @@ func TestGetUser(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(user, ShouldNotBeNil)
 	})
-}
 
-func TestUpdateUser(t *testing.T) {
 	Convey("Testing Update user", t, func() {
 		api := createNewAPI()
 
@@ -94,9 +93,7 @@ func TestUpdateUser(t *testing.T) {
 		So(user, ShouldNotBeNil)
 		So(user.Email, ShouldEqual, "unittest@test.com")
 	})
-}
 
-func TestUpdateUserWithoutUID(t *testing.T) {
 	Convey("Testing Update user without UID", t, func() {
 		api := createNewAPI()
 
@@ -106,9 +103,7 @@ func TestUpdateUserWithoutUID(t *testing.T) {
 		So(err, ShouldNotBeNil)
 		So(user, ShouldBeNil)
 	})
-}
 
-func TestRemoveUser(t *testing.T) {
 	Convey("Testing Remove user", t, func() {
 		api := createNewAPI()
 
@@ -121,9 +116,7 @@ func TestRemoveUser(t *testing.T) {
 		So(err, ShouldNotBeNil)
 		So(user, ShouldBeNil)
 	})
-}
 
-func TestRemoveUserWithoutUID(t *testing.T) {
 	Convey("Testing Remove user without UID", t, func() {
 		api := createNewAPI()
 
@@ -134,7 +127,7 @@ func TestRemoveUserWithoutUID(t *testing.T) {
 	})
 }
 
-func TestGetUsageEmpty(t *testing.T) {
+func TestUsage(t *testing.T) {
 	Convey("Testing Get Usage with empty struct", t, func() {
 		api := createNewAPI()
 
@@ -144,9 +137,7 @@ func TestGetUsageEmpty(t *testing.T) {
 		So(usage.Entries, ShouldBeNil)
 		So(usage.Summary, ShouldBeNil)
 	})
-}
 
-func TestGetUsageSummary(t *testing.T) {
 	Convey("Testing Get Usage summary field", t, func() {
 		api := createNewAPI()
 
@@ -158,9 +149,7 @@ func TestGetUsageSummary(t *testing.T) {
 		So(usage.Entries, ShouldBeNil)
 		So(usage.Summary, ShouldNotBeNil)
 	})
-}
 
-func TestGetUsageEntries(t *testing.T) {
 	Convey("Testing Get Usage entries field", t, func() {
 		api := createNewAPI()
 
@@ -172,9 +161,7 @@ func TestGetUsageEntries(t *testing.T) {
 		So(usage.Entries, ShouldNotBeNil)
 		So(usage.Summary, ShouldBeNil)
 	})
-}
 
-func TestGetUsageEntriesSummary(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field", t, func() {
 		api := createNewAPI()
 
@@ -187,9 +174,7 @@ func TestGetUsageEntriesSummary(t *testing.T) {
 		So(usage.Entries, ShouldNotBeNil)
 		So(usage.Summary, ShouldNotBeNil)
 	})
-}
 
-func TestGetUsageEntriesSummaryWithUID(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field with specified uid", t, func() {
 		api := createNewAPI()
 
@@ -203,9 +188,7 @@ func TestGetUsageEntriesSummaryWithUID(t *testing.T) {
 		So(usage.Entries, ShouldNotBeNil)
 		So(usage.Summary, ShouldNotBeNil)
 	})
-}
 
-func TestGetUsageEntriesSummaryWithUIDStartTime(t *testing.T) {
 	Convey("Testing Get Usage entries/summary field with specified uid, and start Time", t, func() {
 		api := createNewAPI()
 
@@ -221,9 +204,7 @@ func TestGetUsageEntriesSummaryWithUIDStartTime(t *testing.T) {
 		So(usage.Entries, ShouldNotBeNil)
 		So(usage.Summary, ShouldNotBeNil)
 	})
-}
 
-func TestDeleteAllUsages(t *testing.T) {
 	Convey("Testing Delete all usages", t, func() {
 		api := createNewAPI()
 
@@ -235,7 +216,7 @@ func TestDeleteAllUsages(t *testing.T) {
 	})
 }
 
-func TestCreateKey(t *testing.T) {
+func TestKey(t *testing.T) {
 	Convey("Testing Create Key", t, func() {
 		api := createNewAPI()
 
@@ -259,9 +240,7 @@ func TestCreateKey(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestCreateKeyWithoutUID(t *testing.T) {
 	Convey("Testing Create Key without UID", t, func() {
 		api := createNewAPI()
 
@@ -283,9 +262,7 @@ func TestCreateKeyWithoutUID(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestRemoveKey(t *testing.T) {
 	Convey("Testing Remove Key", t, func() {
 		api := createNewAPI()
 
@@ -315,9 +292,7 @@ func TestRemoveKey(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestRemoveKeyWithoutAccessKey(t *testing.T) {
 	Convey("Testing Remove Key without access key", t, func() {
 		api := createNewAPI()
 
@@ -347,7 +322,7 @@ func TestRemoveKeyWithoutAccessKey(t *testing.T) {
 	})
 }
 
-func TestCreateSubUser(t *testing.T) {
+func TestSubUser(t *testing.T) {
 	Convey("Testing CreateSubUser", t, func() {
 		api := createNewAPI()
 
@@ -372,9 +347,7 @@ func TestCreateSubUser(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestCreateSubUserWithoutUID(t *testing.T) {
 	Convey("Testing CreateSubUser without UID", t, func() {
 		api := createNewAPI()
 
@@ -398,9 +371,7 @@ func TestCreateSubUserWithoutUID(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestUpdateSubUser(t *testing.T) {
 	Convey("Testing UpdateSubUser", t, func() {
 		api := createNewAPI()
 
@@ -432,9 +403,7 @@ func TestUpdateSubUser(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestUpdateSubUserWithoutUID(t *testing.T) {
 	Convey("Testing UpdateSubUser without UID", t, func() {
 		api := createNewAPI()
 
@@ -465,9 +434,7 @@ func TestUpdateSubUserWithoutUID(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestUpdateSubUserWithoutSubUID(t *testing.T) {
 	Convey("Testing UpdateSubUser without SubUID", t, func() {
 		api := createNewAPI()
 
@@ -498,9 +465,7 @@ func TestUpdateSubUserWithoutSubUID(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestRemoveSubUser(t *testing.T) {
 	Convey("Testing RemoveSubUser", t, func() {
 		api := createNewAPI()
 
@@ -531,9 +496,6 @@ func TestRemoveSubUser(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
-
-func TestRemoveSubUserWithoutUID(t *testing.T) {
 	Convey("Testing RemoveSubUser without UID", t, func() {
 		api := createNewAPI()
 
@@ -563,9 +525,7 @@ func TestRemoveSubUserWithoutUID(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 	})
-}
 
-func TestRemoveSubUserWithoutSubUID(t *testing.T) {
 	Convey("Testing RemoveSubUser without SubUID", t, func() {
 		api := createNewAPI()
 
@@ -594,5 +554,303 @@ func TestRemoveSubUserWithoutSubUID(t *testing.T) {
 			PurgeData: true,
 		})
 		So(err, ShouldBeNil)
+	})
+}
+
+func TestBucket(t *testing.T) {
+	Convey("Testing Get Bucket with stats", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+
+		buckets, err := api.GetBucket(BucketConfig{
+			UID:   "UnitTest",
+			Stats: true,
+		})
+		So(err, ShouldBeNil)
+		So(buckets, ShouldNotBeNil)
+	})
+
+	Convey("Testing Get Bucket without stats", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+
+		buckets, err := api.GetBucket(BucketConfig{
+			UID: "UnitTest",
+		})
+		fmt.Println("tanere")
+		So(err, ShouldBeNil)
+		So(buckets, ShouldNotBeNil)
+	})
+
+	Convey("Testing Remove Bucket", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+
+		api.RemoveBucket(BucketConfig{
+			Bucket:       "unittestbucket",
+			PurgeObjects: true,
+		})
+
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Testing Remove Bucket without bucket name", t, func() {
+		api := createNewAPI()
+
+		err := api.RemoveBucket(BucketConfig{})
+
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Unlink Bucket without UID", t, func() {
+		api := createNewAPI()
+
+		err := api.UnlinkBucket(BucketConfig{
+			Bucket: "UnitTest",
+		})
+
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Unlink Bucket without Bucket Name", t, func() {
+		api := createNewAPI()
+
+		err := api.UnlinkBucket(BucketConfig{
+			UID: "unittest",
+		})
+
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Unlink Bucket", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+		err = api.UnlinkBucket(BucketConfig{
+			Bucket: "unittestbucket",
+			UID:    "UnitTest",
+		})
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Testing Unlink Invalid Bucket", t, func() {
+		api := createNewAPI()
+
+		err := api.UnlinkBucket(BucketConfig{
+			Bucket: "unittestbucket",
+			UID:    "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Check index without Bucket name", t, func() {
+		api := createNewAPI()
+
+		_, err := api.CheckBucket(BucketConfig{})
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Check index Bucket", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+		index, err := api.CheckBucket(BucketConfig{
+			Bucket: "unittestbucket",
+		})
+		So(err, ShouldBeNil)
+		So(index, ShouldNotBeNil)
+	})
+
+	Convey("Testing Remove Object", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+		b := bytes.NewBufferString("content")
+		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, "")
+		So(err, ShouldBeNil)
+
+		err = api.RemoveObject(BucketConfig{
+			Bucket: "unittestbucket",
+			Object: "test.txt",
+		})
+		So(err, ShouldBeNil)
+	})
+
+	Convey("Testing Remove Object without bucket", t, func() {
+		api := createNewAPI()
+
+		err := api.RemoveObject(BucketConfig{})
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Remove Object without object", t, func() {
+		api := createNewAPI()
+
+		err := api.RemoveObject(BucketConfig{
+			Bucket: "unittestbucket",
+		})
+		So(err, ShouldNotBeNil)
 	})
 }

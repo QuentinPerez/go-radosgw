@@ -4,24 +4,9 @@ type apiError struct {
 	Code string `json:"Code"`
 }
 
-// Usage represents the response of usage requests
-type Usage struct {
-	Entries []struct {
-		Buckets []struct {
-			Bucket     string `json:"bucket"`
-			Categories []struct {
-				BytesReceived int    `json:"bytes_received"`
-				BytesSent     int    `json:"bytes_sent"`
-				Category      string `json:"category"`
-				Ops           int    `json:"ops"`
-				SuccessfulOps int    `json:"successful_ops"`
-			} `json:"categories"`
-			Epoch int    `json:"epoch"`
-			Time  string `json:"time"`
-		} `json:"buckets"`
-		Owner string `json:"owner"`
-	} `json:"entries"`
-	Summary []struct {
+type Entry struct {
+	Buckets []struct {
+		Bucket     string `json:"bucket"`
 		Categories []struct {
 			BytesReceived int    `json:"bytes_received"`
 			BytesSent     int    `json:"bytes_sent"`
@@ -29,14 +14,33 @@ type Usage struct {
 			Ops           int    `json:"ops"`
 			SuccessfulOps int    `json:"successful_ops"`
 		} `json:"categories"`
-		Total struct {
-			BytesReceived int `json:"bytes_received"`
-			BytesSent     int `json:"bytes_sent"`
-			Ops           int `json:"ops"`
-			SuccessfulOps int `json:"successful_ops"`
-		} `json:"total"`
-		User string `json:"user"`
-	} `json:"summary"`
+		Epoch int    `json:"epoch"`
+		Time  string `json:"time"`
+	} `json:"buckets"`
+	Owner string `json:"owner"`
+}
+
+type Summary struct {
+	Categories []struct {
+		BytesReceived int    `json:"bytes_received"`
+		BytesSent     int    `json:"bytes_sent"`
+		Category      string `json:"category"`
+		Ops           int    `json:"ops"`
+		SuccessfulOps int    `json:"successful_ops"`
+	} `json:"categories"`
+	Total struct {
+		BytesReceived int `json:"bytes_received"`
+		BytesSent     int `json:"bytes_sent"`
+		Ops           int `json:"ops"`
+		SuccessfulOps int `json:"successful_ops"`
+	} `json:"total"`
+	User string `json:"user"`
+}
+
+// Usage represents the response of usage requests
+type Usage struct {
+	Entries []Entry   `json:"entries"`
+	Summary []Summary `json:"summary"`
 }
 
 // SubUsers represents the response of subuser requests
@@ -68,7 +72,7 @@ type User struct {
 	UserID      string         `json:"user_id"`
 }
 
-type stats struct {
+type Stats struct {
 	Bucket      string `json:"bucket"`
 	BucketQuota struct {
 		Enabled    bool `json:"enabled"`
@@ -93,10 +97,43 @@ type stats struct {
 	Ver string `json:"ver"`
 }
 
-type bucket struct {
+type Bucket struct {
 	Name  string `json:"name,omitempty"`
-	Stats *stats `json:"stats,omitempty"`
+	Stats *Stats `json:"stats,omitempty"`
 }
 
 // Buckets represents the response of bucket requests
-type Buckets []bucket
+type Buckets []Bucket
+
+// Policy represents the response of policy requests
+type Policy struct {
+	Acl struct {
+		AclGroupMap []struct {
+			Acl   int `json:"acl"`
+			Group int `json:"group"`
+		} `json:"acl_group_map"`
+		AclUserMap []struct {
+			Acl  int    `json:"acl"`
+			User string `json:"user"`
+		} `json:"acl_user_map"`
+		GrantMap []struct {
+			Grant struct {
+				Email      string `json:"email"`
+				Group      int    `json:"group"`
+				ID         string `json:"id"`
+				Name       string `json:"name"`
+				Permission struct {
+					Flags int `json:"flags"`
+				} `json:"permission"`
+				Type struct {
+					Type int `json:"type"`
+				} `json:"type"`
+			} `json:"grant"`
+			ID string `json:"id"`
+		} `json:"grant_map"`
+	} `json:"acl"`
+	Owner struct {
+		DisplayName string `json:"display_name"`
+		ID          string `json:"id"`
+	} `json:"owner"`
+}

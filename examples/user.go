@@ -20,7 +20,10 @@ func printRawMode(out io.Writer, data interface{}) error {
 }
 
 func main() {
-	api := radosAPI.New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+	api, err := radosAPI.New(os.Getenv("RADOSGW_API"), os.Getenv("RADOSGW_ACCESS"), os.Getenv("RADOSGW_SECRET"))
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	// create a new user named JohnDoe
 	user, err := api.CreateUser(radosAPI.UserConfig{
