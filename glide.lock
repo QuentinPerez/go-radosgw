@@ -1,5 +1,5 @@
-hash: f56a598970b4ae8dead7fbf6817179e10c3c25809d0ee5f4a314868b0c328b8e
-updated: 2017-01-06T10:58:56.396556418+01:00
+hash: 09200fbf1f877a69c00c4da544fa24f8333656e497a938d9342abd424e9be6da
+updated: 2017-01-09T18:07:01.062050752+01:00
 imports:
 - name: github.com/QuentinPerez/go-encodeUrl
   version: 645a9dbeee154c68e218053e604de21f1e3d91d0
@@ -7,11 +7,18 @@ imports:
   version: 2043e6d0bb7e4c18464a7bba562acbe482e3cabd
 testImports:
 - name: github.com/gopherjs/gopherjs
-  version: db2cfff3878815d744fb4a4bd07cba0596eaf2a5
+  version: dcd7ed070932688cbd543449d96aaae225ffd90c
   subpackages:
   - js
 - name: github.com/jtolds/gls
   version: bb0351aa7eb6f322f32667d51375f26a2bca6628
+- name: github.com/minio/minio-go
+  version: 2d9b5aa27693f8489b04aed103d2ef53fa5ddb4f
+  subpackages:
+  - pkg/policy
+  - pkg/s3signer
+  - pkg/s3utils
+  - pkg/set
 - name: github.com/smartystreets/assertions
   version: 26acb9229f421449ac63d014995b282d59261a8b
   subpackages:
