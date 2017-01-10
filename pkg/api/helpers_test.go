@@ -34,9 +34,17 @@ func TestAPI(t *testing.T) {
 	})
 
 	Convey("Testing New API with prefix", t, func() {
-		api := createNewAPI()
-
+		api, err := New(Url, Access, Secret, "adminEndpoint")
+		if err != nil {
+			panic(err)
+		}
 		So(api, ShouldNotBeNil)
+	})
+
+	Convey("Testing New API without arguments", t, func() {
+		api, err := New("", "", "")
+		So(api, ShouldBeNil)
+		So(err, ShouldNotBeNil)
 	})
 }
 
@@ -850,5 +858,169 @@ func TestBucket(t *testing.T) {
 			Bucket: "unittestbucket",
 		})
 		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Get Bucket Policy", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+
+		policy, err := api.GetBucketPolicy(BucketConfig{})
+		So(err, ShouldNotBeNil)
+		policy, err = api.GetBucketPolicy(BucketConfig{
+			Bucket: "unittestbucket",
+		})
+		So(err, ShouldBeNil)
+		So(policy, ShouldNotBeNil)
+	})
+
+	Convey("Testing Get Object Policy", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+		b := bytes.NewBufferString("content")
+		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, "")
+		So(err, ShouldBeNil)
+
+		policy, err := api.GetObjectPolicy(BucketConfig{})
+		So(err, ShouldNotBeNil)
+
+		policy, err = api.GetObjectPolicy(BucketConfig{
+			Bucket: "unittestbucket",
+		})
+		So(err, ShouldNotBeNil)
+
+		policy, err = api.GetObjectPolicy(BucketConfig{
+			Bucket: "unittestbucket",
+			Object: "test.txt",
+		})
+		So(err, ShouldBeNil)
+		So(policy, ShouldNotBeNil)
+	})
+}
+
+func TestQuota(t *testing.T) {
+	Convey("Testing  Quota Without arguments", t, func() {
+		api := createNewAPI()
+
+		quotas, err := api.GetQuotas(QuotaConfig{})
+		So(quotas, ShouldBeNil)
+		So(err, ShouldNotBeNil)
+		err = api.UpdateQuota(QuotaConfig{})
+		So(err, ShouldNotBeNil)
+		err = api.UpdateQuota(QuotaConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+	})
+
+	Convey("Testing Get Quota", t, func() {
+		api := createNewAPI()
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+		quotas, err := api.GetQuotas(QuotaConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(quotas, ShouldNotBeNil)
+	})
+
+	Convey("Testing Update Quota", t, func() {
+		api := createNewAPI()
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+		quotas, err := api.GetQuotas(QuotaConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(quotas, ShouldNotBeNil)
+		err = api.UpdateQuota(QuotaConfig{
+			UID:       "UnitTest",
+			MaxSizeKB: "1000",
+			QuotaType: "user",
+		})
+		So(err, ShouldBeNil)
+		quotas, err = api.GetQuotas(QuotaConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldBeNil)
+		So(quotas, ShouldNotBeNil)
+		So(quotas.UserQuota.MaxSizeKb, ShouldEqual, 1000)
 	})
 }
