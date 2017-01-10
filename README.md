@@ -11,9 +11,9 @@ It allows operations on user/bucket/quota/capability.
 |Operation    | Implemented        | Tests               |
 |-------------|--------------------|---------------------|
 |  User       | :white_check_mark: |:white_check_mark:   |
-|  Bucket     | :x:                |:x:                  |
-|  Capability | :x:                |:x:                  |
-|  Quota      | :x:                |:x:                  |
+|  Bucket     | :white_check_mark: |:white_check_mark:   |
+|  Capability | :white_check_mark: |:white_check_mark:   |
+|  Quota      | :white_check_mark: |:white_check_mark:   |
 
 ## Setup
 
