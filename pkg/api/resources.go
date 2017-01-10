@@ -58,10 +58,7 @@ type KeysDefinition []struct {
 
 // User represents the response of user requests
 type User struct {
-	Caps []struct {
-		Perm string `json:"perm"`
-		Type string `json:"type"`
-	} `json:"caps"`
+	Caps        []Capability   `json:"caps"`
 	DisplayName string         `json:"display_name"`
 	Email       string         `json:"email"`
 	Keys        KeysDefinition `json:"keys"`
@@ -150,4 +147,10 @@ type Quotas struct {
 		MaxObjects int  `json:"max_objects"`
 		MaxSizeKb  int  `json:"max_size_kb"`
 	} `json:"user_quota"`
+}
+
+// Capability represents the reponse of capability requests
+type Capability struct {
+	Perm string `json:"perm"`
+	Type string `json:"type"`
 }

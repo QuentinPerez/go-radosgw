@@ -716,7 +716,7 @@ func (api *API) GetObjectPolicy(conf BucketConfig) (*Policy, error) {
 
 }
 
-// QuotaConfig bucket request
+// QuotaConfig quota request
 type QuotaConfig struct {
 	UID        string `url:"uid,ifStringIsNotEmpty"`         // The user to specify a quota
 	MaxObjects string `url:"max-objects,ifStringIsNotEmpty"` // The max-objects setting allows you to specify the maximum number of objects. A negative value disables this setting.
@@ -782,4 +782,76 @@ func (api *API) UpdateQuota(conf QuotaConfig) error {
 	values.Add("format", "json")
 	_, _, err := api.call("PUT", "/user", values, true, "quota")
 	return err
+}
+
+// CapConfig capability request
+type CapConfig struct {
+	UID      string `url:"uid,ifStringIsNotEmpty"`       // The user ID
+	UserCaps string `url:"user-caps,ifStringIsNotEmpty"` // The administrative capabilities
+}
+
+// AddCapability returns user's quotas
+//
+// !! caps:	users=write !!
+//
+//@UID
+//@UserCaps
+//
+func (api *API) AddCapability(conf CapConfig) ([]Capability, error) {
+	var (
+		values = url.Values{}
+		ret    = []Capability{}
+		errs   []error
+	)
+
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+	if conf.UserCaps == "" {
+		return nil, errors.New("UserCaps field is required")
+	}
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("PUT", "/user", values, true, "caps")
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, err
+}
+
+// DelCapability returns user's quotas
+//
+// !! caps:	users=write !!
+//
+//@UID
+//@UserCaps
+//
+func (api *API) DelCapability(conf CapConfig) ([]Capability, error) {
+	var (
+		values = url.Values{}
+		ret    = []Capability{}
+		errs   []error
+	)
+
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+	if conf.UserCaps == "" {
+		return nil, errors.New("UserCaps field is required")
+	}
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("DELETE", "/user", values, true, "caps")
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, err
 }

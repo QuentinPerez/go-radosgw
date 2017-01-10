@@ -14,7 +14,7 @@ import (
 
 var (
 	Url    = os.Getenv("RADOSGW_API")
-	Access = os.Getenv("RADOSGW_ACCESS")
+	Access = os.Getenv("RADOSGW_ACCESS") // USER WITH ALL CAPABILITIES
 	Secret = os.Getenv("RADOSGW_SECRET")
 )
 
