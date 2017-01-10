@@ -1024,3 +1024,111 @@ func TestQuota(t *testing.T) {
 		So(quotas.UserQuota.MaxSizeKb, ShouldEqual, 1000)
 	})
 }
+
+func TestCapability(t *testing.T) {
+	Convey("Testing AddCapability Without arguments", t, func() {
+		api := createNewAPI()
+
+		cap, err := api.AddCapability(CapConfig{})
+		So(err, ShouldNotBeNil)
+		So(cap, ShouldBeNil)
+		cap, err = api.AddCapability(CapConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+		So(cap, ShouldBeNil)
+	})
+
+	Convey("Testing AddCapability", t, func() {
+		api := createNewAPI()
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		cap, err := api.AddCapability(CapConfig{
+			UID:      "UnitTest",
+			UserCaps: "usage=*",
+		})
+		So(cap, ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		found := false
+		for _, c := range cap {
+			if c.Type == "usage" && c.Perm == "*" {
+				found = true
+			}
+		}
+		So(found, ShouldEqual, true)
+	})
+
+	Convey("Testing DelCapability Without arguments", t, func() {
+		api := createNewAPI()
+
+		cap, err := api.DelCapability(CapConfig{})
+		So(err, ShouldNotBeNil)
+		So(cap, ShouldBeNil)
+		cap, err = api.DelCapability(CapConfig{
+			UID: "UnitTest",
+		})
+		So(err, ShouldNotBeNil)
+		So(cap, ShouldBeNil)
+	})
+
+	Convey("Testing DelCapability", t, func() {
+		api := createNewAPI()
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		cap, err := api.AddCapability(CapConfig{
+			UID:      "UnitTest",
+			UserCaps: "usage=*",
+		})
+		So(cap, ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		found := false
+		for _, c := range cap {
+			if c.Type == "usage" && c.Perm == "*" {
+				found = true
+			}
+		}
+
+		So(found, ShouldEqual, true)
+		cap, err = api.DelCapability(CapConfig{
+			UID:      "UnitTest",
+			UserCaps: "usage=*",
+		})
+		So(cap, ShouldNotBeNil)
+		So(err, ShouldBeNil)
+		found = false
+		for _, c := range cap {
+			if c.Type == "usage" && c.Perm == "*" {
+				found = true
+			}
+		}
+		So(found, ShouldEqual, false)
+	})
+}
