@@ -715,3 +715,71 @@ func (api *API) GetObjectPolicy(conf BucketConfig) (*Policy, error) {
 	return ret, err
 
 }
+
+// QuotaConfig bucket request
+type QuotaConfig struct {
+	UID        string `url:"uid,ifStringIsNotEmpty"`         // The user to specify a quota
+	MaxObjects string `url:"max-objects,ifStringIsNotEmpty"` // The max-objects setting allows you to specify the maximum number of objects. A negative value disables this setting.
+	MaxSizeKB  string `url:"max-size-kb,ifStringIsNotEmpty"` // The max-size-kb option allows you to specify a quota for the maximum number of bytes. A negative value disables this setting
+	Enabled    string `url:"enabled,ifStringIsNotEmpty"`     // The enabled option enables the quotas
+	QuotaType  string `url:"quota-type,ifStringIsNotEmpty"`  // The quota-type option sets the scope for the quota. The options are bucket and user.
+}
+
+// GetQuotas returns user's quotas
+//
+// !! caps:	users=read !!
+//
+//@UID
+//@QuotaType
+//
+func (api *API) GetQuotas(conf QuotaConfig) (*Quotas, error) {
+	var (
+		ret    = &Quotas{}
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.UID == "" {
+		return nil, errors.New("UID field is required")
+	}
+
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+	values.Add("format", "json")
+	body, _, err := api.call("GET", "/user", values, true, "quota")
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+	return ret, err
+
+}
+
+// UpdateQuota updates user's quotas
+//
+// !! caps:	users=write !!
+//
+//@UID
+//@Quota [user,bucket]
+//
+func (api *API) UpdateQuota(conf QuotaConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	if conf.QuotaType == "" {
+		return errors.New("QuotaType field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.call("PUT", "/user", values, true, "quota")
+	return err
+}

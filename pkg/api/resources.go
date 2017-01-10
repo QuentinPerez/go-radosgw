@@ -137,3 +137,17 @@ type Policy struct {
 		ID          string `json:"id"`
 	} `json:"owner"`
 }
+
+// Quotas represents the reponse of quotas requests
+type Quotas struct {
+	BucketQuota struct {
+		Enabled    bool `json:"enabled"`
+		MaxObjects int  `json:"max_objects"`
+		MaxSizeKb  int  `json:"max_size_kb"`
+	} `json:"bucket_quota"`
+	UserQuota struct {
+		Enabled    bool `json:"enabled"`
+		MaxObjects int  `json:"max_objects"`
+		MaxSizeKb  int  `json:"max_size_kb"`
+	} `json:"user_quota"`
+}
