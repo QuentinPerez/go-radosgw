@@ -85,14 +85,13 @@ func (api *API) DeleteUsage(conf UsageConfig) error {
 //
 // @uid
 //
-func (api *API) GetUser(uid ...string) (*User, error) {
+func (api *API) GetUser(uid string) (*User, error) {
 	ret := &User{}
 	values := url.Values{}
 
 	values.Add("format", "json")
-	if len(uid) != 0 {
-		values.Add("uid", uid[0])
-	}
+	values.Add("uid", uid)
+
 	body, _, err := api.call("GET", "/user", values, true)
 	if err != nil {
 		return nil, err
@@ -102,6 +101,26 @@ func (api *API) GetUser(uid ...string) (*User, error) {
 	}
 	return ret, nil
 }
+
+func (api *API) GetUsers() ([]string, error) {
+	ret := make([]string, 0)
+	values := url.Values{}
+
+	values.Add("format", "json")
+
+	body, _, err := api.call("GET", "/metadata/user", values, true)
+
+	if err != nil {
+		return nil, err
+	}
+
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return nil, err
+	}
+
+	return ret, nil
+}
+
 
 // UserConfig user request
 type UserConfig struct {
