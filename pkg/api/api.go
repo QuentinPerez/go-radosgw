@@ -35,6 +35,7 @@ func New(host, accessKey, secretKey string, adminPrefix ...string) (*API, error)
 func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err error) {
 	var apiErr apiError
 	client := http.Client{}
+
 	// fmt.Printf("URL [%v]: %v\n", verb, url)
 	req, err := http.NewRequest(verb, url, nil)
 	if err != nil {
