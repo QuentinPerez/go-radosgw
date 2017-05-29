@@ -98,7 +98,7 @@ func TestUser(t *testing.T) {
 		})
 		So(err, ShouldBeNil)
 		So(user, ShouldNotBeNil)
-		So(user.Email, ShouldEqual, "unittest@test.com")
+		So(user.Email, ShouldEqual, "UnitTest@test.com")
 	})
 
 	Convey("Testing Update user without UID", t, func() {
