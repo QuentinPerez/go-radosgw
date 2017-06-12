@@ -1,9 +1,0 @@
-package: github.com/QuentinPerez/go-radosgw
-import:
-- package: github.com/QuentinPerez/go-encodeUrl
-- package: github.com/smartystreets/go-aws-auth
-testImport:
-- package: github.com/minio/minio-go
-- package: github.com/smartystreets/goconvey
-  subpackages:
-  - convey
