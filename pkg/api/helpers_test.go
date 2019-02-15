@@ -89,6 +89,26 @@ func TestUser(t *testing.T) {
 		So(user, ShouldNotBeNil)
 	})
 
+	Convey("Testing Get UIDs", t, func() {
+		api := createNewAPI()
+
+		uids, err := api.GetUIDs()
+		So(err, ShouldBeNil)
+		So(uids, ShouldContain, "UnitTest")
+	})
+
+	Convey("Testing Get users", t, func() {
+		api := createNewAPI()
+
+		user, err := api.GetUser("UnitTest")
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		users, err := api.GetUsers()
+		So(err, ShouldBeNil)
+		So(users, ShouldContain, user)
+	})
+
 	Convey("Testing Update user", t, func() {
 		api := createNewAPI()
 

@@ -52,8 +52,14 @@ func (api *API) GetUsage(conf UsageConfig) (*Usage, error) {}
 // DeleteUsage removes usage information. With no dates specified, removes all usage information
 func (api *API) DeleteUsage(conf UsageConfig) error {}
 
+// GetUIDs gets all UIDs.
+func (api *API) GetUIDs() ([]string, error) {}
+
 // GetUser gets user information. If no user is specified returns the list of all users along with suspension information
 func (api *API) GetUser(uid ...string) (*User, error) {}
+
+// GetUsers get all user information.
+func (api *API) GetUsers() ([]*User, error) {}
 
 // CreateUser creates a new user. By Default, a S3 key pair will be created automatically and returned in the response.
 func (api *API) CreateUser(conf UserConfig) (*User, error) {}
