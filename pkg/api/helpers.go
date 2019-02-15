@@ -103,6 +103,46 @@ func (api *API) GetUser(uid ...string) (*User, error) {
 	return ret, nil
 }
 
+// GetUIDs gets all UIDs.
+//
+// !! caps: users=read !!
+//
+func (api *API) GetUIDs() ([]string, error) {
+	var ret []string
+	values := url.Values{}
+
+	values.Add("format", "json")
+	body, _, err := api.call("GET", "/metadata/user", values, true)
+	if err != nil {
+		return ret, err
+	}
+	if err = json.Unmarshal(body, &ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// GetUsers get all user information.
+//
+// !! caps: users=read !!
+//
+func (api *API) GetUsers() ([]*User, error) {
+	var ret []*User
+
+	uids, err := api.GetUIDs()
+	if err != nil {
+		return ret, err
+	}
+	ret = make([]*User, len(uids))
+	for idx, uid := range uids {
+		ret[idx], err = api.GetUser(uid)
+		if err != nil {
+			return ret, err
+		}
+	}
+	return ret, nil
+}
+
 // UserConfig user request
 type UserConfig struct {
 	UID         string `url:"uid,ifStringIsNotEmpty"`          // The user ID to be created
