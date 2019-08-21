@@ -18,10 +18,15 @@ type API struct {
 	accessKey string
 	secretKey string
 	prefix    string
+	client	  *http.Client
 }
 
 // New returns client for Ceph RADOS Gateway
 func New(host, accessKey, secretKey string, adminPrefix ...string) (*API, error) {
+	return NewWithClient(&http.Client{}, host, accessKey, secretKey, adminPrefix...)
+}
+
+func NewWithClient(client *http.Client, host, accessKey, secretKey string, adminPrefix ...string) (*API, error) {
 	prefix := "admin"
 	if len(adminPrefix) > 0 {
 		prefix = adminPrefix[0]
@@ -29,12 +34,11 @@ func New(host, accessKey, secretKey string, adminPrefix ...string) (*API, error)
 	if host == "" || accessKey == "" || secretKey == "" {
 		return nil, fmt.Errorf("host, accessKey, secretKey must be not nil")
 	}
-	return &API{host, accessKey, secretKey, prefix}, nil
+	return &API{host, accessKey, secretKey, prefix, client}, nil
 }
 
 func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err error) {
 	var apiErr apiError
-	client := http.Client{}
 
 	// fmt.Printf("URL [%v]: %v\n", verb, url)
 	req, err := http.NewRequest(verb, url, nil)
@@ -46,7 +50,7 @@ func (api *API) makeRequest(verb, url string) (body []byte, statusCode int, err 
 		SecretAccessKey: api.secretKey,
 		Expiration:      time.Now().Add(1 * time.Minute)},
 	)
-	resp, err := client.Do(req)
+	resp, err := api.client.Do(req)
 	if err != nil {
 		return
 	}
