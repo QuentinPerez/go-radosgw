@@ -92,6 +92,7 @@ type Stats struct {
 		} `json:"rgw.main"`
 	} `json:"usage"`
 	Ver string `json:"ver"`
+	ZoneGroup string `json:"zonegroup"`
 }
 
 type Bucket struct {
