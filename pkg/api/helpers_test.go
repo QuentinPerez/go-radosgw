@@ -1086,6 +1086,7 @@ func TestQuota(t *testing.T) {
 		buckets, err := api.GetBucket(BucketConfig{
 			UID:    "UnitTest",
 			Bucket: "unittestbucket",
+			Stats:  true,
 		})
 		So(err, ShouldBeNil)
 		So(buckets[0].Stats.BucketQuota.MaxSizeKb, ShouldEqual, 4096)
