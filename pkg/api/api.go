@@ -18,7 +18,7 @@ type API struct {
 	accessKey string
 	secretKey string
 	prefix    string
-	client	  *http.Client
+	client    *http.Client
 }
 
 // New returns client for Ceph RADOS Gateway
