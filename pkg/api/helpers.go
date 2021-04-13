@@ -759,7 +759,7 @@ func (api *API) GetObjectPolicy(conf BucketConfig) (*Policy, error) {
 // QuotaConfig quota request
 type QuotaConfig struct {
 	UID        string `url:"uid,ifStringIsNotEmpty"`         // The user to specify a quota
-	Bucket     string `url:"bucket,ifStringIsNotEmpty"`      // The user to specify a quota
+	Bucket     string `url:"bucket,ifStringIsNotEmpty"`      // The bucket name
 	MaxObjects string `url:"max-objects,ifStringIsNotEmpty"` // The max-objects setting allows you to specify the maximum number of objects. A negative value disables this setting.
 	MaxSizeKB  string `url:"max-size-kb,ifStringIsNotEmpty"` // The max-size-kb option allows you to specify a quota for the maximum number of bytes. A negative value disables this setting
 	Enabled    string `url:"enabled,ifStringIsNotEmpty"`     // The enabled option enables the quotas
