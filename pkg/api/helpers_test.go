@@ -854,7 +854,7 @@ func TestBucket(t *testing.T) {
 		err = minioClient.MakeBucket("unittestbucket", "")
 		So(err, ShouldBeNil)
 		b := bytes.NewBufferString("content")
-		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, "")
+		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, int64(b.Len()), minio.PutObjectOptions{})
 		So(err, ShouldBeNil)
 
 		err = api.RemoveObject(BucketConfig{
@@ -951,7 +951,7 @@ func TestBucket(t *testing.T) {
 		err = minioClient.MakeBucket("unittestbucket", "")
 		So(err, ShouldBeNil)
 		b := bytes.NewBufferString("content")
-		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, "")
+		_, err = minioClient.PutObject("unittestbucket", "test.txt", b, int64(b.Len()), minio.PutObjectOptions{})
 		So(err, ShouldBeNil)
 
 		policy, err := api.GetObjectPolicy(BucketConfig{})
@@ -1042,6 +1042,53 @@ func TestQuota(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(quotas, ShouldNotBeNil)
 		So(quotas.UserQuota.MaxSizeKb, ShouldEqual, 1000)
+	})
+
+	Convey("Testing Update Bucket Quota", t, func() {
+		api := createNewAPI()
+
+		url := ""
+		useSSL := false
+		if strings.HasPrefix(Url, "http://") {
+			url = Url[7:]
+		} else if strings.HasPrefix(Url, "https://") {
+			url = Url[8:]
+			useSSL = true
+		}
+
+		user, err := api.CreateUser(UserConfig{
+			UID:         "UnitTest",
+			DisplayName: "Unit Test",
+		})
+		So(err, ShouldBeNil)
+		So(user, ShouldNotBeNil)
+
+		defer func() {
+			err = api.RemoveUser(UserConfig{
+				UID:       "UnitTest",
+				PurgeData: true,
+			})
+			So(err, ShouldBeNil)
+		}()
+
+		minioClient, err := minio.New(url, user.Keys[0].AccessKey, user.Keys[0].SecretKey, useSSL)
+		So(err, ShouldBeNil)
+		err = minioClient.MakeBucket("unittestbucket", "")
+		So(err, ShouldBeNil)
+
+		err = api.UpdateBuckQuota(QuotaConfig{
+			UID:       "UnitTest",
+			Bucket:    "unittestbucket",
+			MaxSizeKB: "4096",
+		})
+		So(err, ShouldBeNil)
+
+		buckets, err := api.GetBucket(BucketConfig{
+			UID:    "UnitTest",
+			Bucket: "unittestbucket",
+		})
+		So(err, ShouldBeNil)
+		So(buckets[0].Stats.BucketQuota.MaxSizeKb, ShouldEqual, 4096)
 	})
 }
 

@@ -91,7 +91,7 @@ type Stats struct {
 			SizeKbActual int `json:"size_kb_actual"`
 		} `json:"rgw.main"`
 	} `json:"usage"`
-	Ver string `json:"ver"`
+	Ver       string `json:"ver"`
 	ZoneGroup string `json:"zonegroup"`
 }
 

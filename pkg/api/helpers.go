@@ -759,9 +759,9 @@ func (api *API) GetObjectPolicy(conf BucketConfig) (*Policy, error) {
 // QuotaConfig quota request
 type QuotaConfig struct {
 	UID        string `url:"uid,ifStringIsNotEmpty"`         // The user to specify a quota
+	Bucket     string `url:"bucket,ifStringIsNotEmpty"`      // The user to specify a quota
 	MaxObjects string `url:"max-objects,ifStringIsNotEmpty"` // The max-objects setting allows you to specify the maximum number of objects. A negative value disables this setting.
-	MaxSizeKB  string `url:"max-size-kb,ifStringIsNotEmpty"` // (legacy)The max-size-kb option allows you to specify a quota for the maximum number of bytes. A negative value disables this setting
-	MaxSize    string `url:"max-size,ifStringIsNotEmpty"`    // The max-size option allows you to specify a quota size in B/K/M/G/T, where B is the default. A negative value disables this setting.
+	MaxSizeKB  string `url:"max-size-kb,ifStringIsNotEmpty"` // The max-size-kb option allows you to specify a quota for the maximum number of bytes. A negative value disables this setting
 	Enabled    string `url:"enabled,ifStringIsNotEmpty"`     // The enabled option enables the quotas
 	QuotaType  string `url:"quota-type,ifStringIsNotEmpty"`  // The quota-type option sets the scope for the quota. The options are bucket and user.
 }
@@ -822,6 +822,34 @@ func (api *API) UpdateQuota(conf QuotaConfig) error {
 	}
 	values.Add("format", "json")
 	_, _, err := api.call("PUT", "/user", values, true, "quota")
+	return err
+}
+
+// UpdateBuckQuota updates individual bucket's quotas
+//
+// !! caps:	buckets=write !!
+//
+//@Bucket
+//@Quota [bucket]
+//
+func (api *API) UpdateBuckQuota(conf QuotaConfig) error {
+	var (
+		values = url.Values{}
+		errs   []error
+	)
+
+	if conf.Bucket == "" {
+		return errors.New("Bucket field is required")
+	}
+	if conf.UID == "" {
+		return errors.New("UID field is required")
+	}
+	values, errs = encurl.Translate(conf)
+	if len(errs) > 0 {
+		return errs[0]
+	}
+	values.Add("format", "json")
+	_, _, err := api.call("PUT", "/bucket", values, true, "quota")
 	return err
 }
 
