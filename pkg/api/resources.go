@@ -70,8 +70,10 @@ type User struct {
 }
 
 type Stats struct {
-	Bucket      string `json:"bucket"`
-	BucketQuota struct {
+	Bucket        string `json:"bucket"`
+	NumShards     int    `json:"num_shards"`
+	PlacementRule string `json:"placement_rule"`
+	BucketQuota   struct {
 		Enabled    bool `json:"enabled"`
 		MaxObjects int  `json:"max_objects"`
 		MaxSizeKb  int  `json:"max_size_kb"`
